@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TRPG 卓管理ツール v5.1.1</title>
+<title>TRPG 卓管理ツール v5.1.3</title>
 <style>
 :root{--bg:#f6f3ee;--card:#fff;--ink:#282522;--sub:#756f68;--line:#ded8d0;--accent:#5f7668;--soft:#edf1ee}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}
@@ -24,7 +24,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 .kindbadge.new{color:#b85c78;background:#ffe8f0;border-color:#f3b7ca}
 .kindbadge.cont{color:#4f83a8;background:#e6f5ff;border-color:#afd8f2}
 
-/* v5.1.1 卓予定 compact */
+/* v5.1.3 卓予定 compact */
 #plans .card{padding:12px;margin-bottom:10px}
 #plans h2{margin:0 0 8px;font-size:18px}
 #plans label{font-size:12px;margin-bottom:3px}
@@ -35,7 +35,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 #planList button{padding:6px 9px;font-size:12px}
 .plan-inline-editor{margin-top:7px;padding:9px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.55)}
 
-/* v5.1.1 iPhone tab fix */
+/* v5.1.3 iPhone tab fix */
 .tabs{
   position:relative;
   z-index:50;
@@ -62,7 +62,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 }
 
 
-/* v5.1.1 iPhone compact layout */
+/* v5.1.3 iPhone compact layout */
 .make-report-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.make-report-btn span{display:block;width:100%;line-height:1.15;text-align:center}
 @media(max-width:650px){
   body{font-size:13px}
@@ -87,7 +87,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #reportOutput{min-height:110px!important}
 }
 
-/* v5.1.1 iPhone usability */
+/* v5.1.3 iPhone usability */
 @media(max-width:650px){
   .tabs{
     display:grid!important;
@@ -115,7 +115,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #report #contBox{margin-top:6px}
 }
 
-/* v5.1.1 record compact layout */
+/* v5.1.3 record compact layout */
 .record-v50-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
 .record-party-v50{margin-top:7px}
 #records .pcrow{
@@ -138,7 +138,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
  #manualRecordForm label{margin-bottom:2px}
 }
 
-/* v5.1.1 iPhone / record refinements */
+/* v5.1.3 iPhone / record refinements */
 @media(max-width:650px){
   input,select,textarea{font-size:16px!important;} /* iOS focus zoom prevention */
 }
@@ -177,10 +177,70 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   border:2px solid var(--line)!important;
   border-radius:12px!important;
 }
+
+/* v5.1.3 卓記録：KPC/KP・PC/PLを縦型に */
+#records .pcrow{
+  display:grid!important;
+  grid-template-columns:52px minmax(0,1fr)!important;
+  gap:5px 7px!important;
+  align-items:start!important;
+}
+#records .pcrow .ho{display:none!important}
+#records .pcrow .pc{
+  grid-column:2!important;
+  grid-row:1!important;
+  width:100%!important;
+}
+#records .pcrow .pl{
+  grid-column:2!important;
+  grid-row:2!important;
+  width:100%!important;
+}
+#records .pcrow .reading{
+  grid-column:2!important;
+  grid-row:3!important;
+}
+#records .pcrow .memo{
+  grid-column:2!important;
+  grid-row:4!important;
+}
+#records .pcrow::before{
+  grid-column:1!important;
+  grid-row:1 / span 2!important;
+  align-self:start;
+  padding-top:8px;
+  font-weight:700;
+  font-size:13px;
+  text-align:center;
+}
+#records #recKpcFields .pcrow::before{content:"KPC"}
+#records #recPcFields .pcrow::before{content:"PC"}
+#recordEndRowV51{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:6px!important;
+  width:100%!important;
+  margin-top:7px!important;
+}
+#recordEndRowV51>div{margin-top:0!important;min-width:0}
+#recordList button{
+  font-size:10px!important;
+  padding:4px 6px!important;
+  min-height:25px!important;
+  line-height:1.1!important;
+}
+
+.inline-record-edit-v513{
+ margin:8px 0 12px!important;
+ padding:10px!important;
+ border:2px solid var(--line)!important;
+ border-radius:12px!important;
+ background:var(--card)!important;
+}
 </style>
 </head>
 <body><div class="wrap">
-<div class="title">TRPG 卓管理ツール <span class="muted">v5.1.1</span></div>
+<div class="title">TRPG 卓管理ツール <span class="muted">v5.1.3</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="report">卓報告</button>
 <button class="tab" data-tab="cf">クリファン</button>
@@ -1079,7 +1139,7 @@ $('#importBackup').onchange=async e=>{
 renderBackupStatus();
 
 </script><script>
-// v5.1.1: iPhone-safe delegated tab switching
+// v5.1.3: iPhone-safe delegated tab switching
 (function(){
   function activateTab(tab){
     if(!tab) return;
@@ -1122,8 +1182,8 @@ function arrangeRecordFormV50(){
 }
 setTimeout(arrangeRecordFormV50,0);
 </script><script>
-const _editRecordV50=window.editRecord;
-window.editRecord=function(id){
+const _editRecordV50_legacy=window.editRecord;
+window.editRecordLegacyV50=function(id){
  const card=document.querySelector(`[data-record-id="${id}"]`) || [...document.querySelectorAll('#recordList .card')].find(c=>c.innerHTML.includes(`editRecord('${id}')`)||c.innerHTML.includes(`editRecord("${id}")`));
  const form=document.querySelector('#manualRecordForm');
  if(!form||!_editRecordV50)return _editRecordV50?.(id);
@@ -1190,8 +1250,8 @@ document.addEventListener('click',function(e){
 },true);
 </script><script>
 (function(){
-  const previousEdit = window.editRecord;
-  window.editRecord = function(id){
+  const previousEditLegacyV511 = window.editRecord;
+  window.editRecordLegacyV511 = function(id){
     const form = document.getElementById('manualRecordForm');
     if(!form || typeof previousEdit !== 'function') return previousEdit && previousEdit(id);
 
@@ -1233,6 +1293,109 @@ document.addEventListener('click',function(e){
   document.addEventListener('click',e=>{
     const t=e.target.closest&&e.target.closest('#saveRecord,#clearRecord');
     if(t) setTimeout(restoreRecordForm,0);
+  });
+})();
+</script><script>
+function forceRecordOrderV512(){
+ const form=document.getElementById('manualRecordForm'); if(!form)return;
+ const kpc=document.getElementById('recKpcFields');
+ const pcs=document.getElementById('recPcFields');
+ const end=document.getElementById('recEnd')?.closest('div');
+ const result=document.getElementById('recResult')?.closest('div');
+ const memo=document.getElementById('recMemo')?.closest('div');
+
+ // Ho inputs are no longer part of the visible editor.
+ form.querySelectorAll('.ho').forEach(el=>el.style.display='none');
+
+ // END / result must always be immediately after KPC/PC sections.
+ if(end&&result){
+   let row=document.getElementById('recordEndRowV51');
+   if(!row){row=document.createElement('div');row.id='recordEndRowV51';}
+   row.className='record-v50-row';
+   row.append(end,result);
+   if(pcs) pcs.insertAdjacentElement('afterend',row);
+   else if(kpc) kpc.insertAdjacentElement('afterend',row);
+ }
+ // Memo is always last.
+ if(memo) form.append(memo);
+}
+document.addEventListener('click',e=>{
+ if(e.target.closest&&e.target.closest('.tab[data-tab="records"],#recordList button')) setTimeout(forceRecordOrderV512,20);
+});
+setTimeout(forceRecordOrderV512,30);
+</script><script>
+(function(){
+  function restoreRecordFormHomeV513(){
+    const form=document.getElementById('manualRecordForm');
+    const home=document.getElementById('recordFormHomeV513');
+    if(form&&home) home.insertAdjacentElement('afterend',form);
+  }
+
+  window.editRecord=function(id){
+    const records=load(LS.records);
+    const r=records.find(x=>x.id===id);
+    if(!r)return;
+
+    const form=document.getElementById('manualRecordForm');
+    if(!form)return;
+
+    // Remember original form position once, but DO NOT scroll there.
+    if(!document.getElementById('recordFormHomeV513')){
+      const home=document.createElement('div');
+      home.id='recordFormHomeV513';
+      form.parentNode.insertBefore(home,form);
+    }
+
+    // Populate the existing manual editor directly.
+    $('#editRecordId').value=r.id||'';
+    $('#recDate').value=r.date||'';
+    $('#recScenario').value=r.scenario||'';
+    $('#recAlias').value=r.alias||'';
+    $('#recKind').value=r.kind||(r.kpc||r.contMemo?'cont':'new');
+    if(typeof syncRecKindUI==='function')syncRecKindUI($('#recKind').value);
+    $('#recContMemo').value=r.contMemo||'';
+    $('#recSystem').value=['CoC6','CoC7','エモクロアTRPG'].includes(r.system)?r.system:'custom';
+    $('#recSystemCustom').value=['CoC6','CoC7','エモクロアTRPG'].includes(r.system)?'':(r.system||'');
+    $('#recSystemCustom').classList.toggle('hidden',$('#recSystem').value!=='custom');
+    $('#recKp').value=r.kp||'';
+    $('#recKpc').value=r.kpc||'';
+    $('#recKpcHo').value=r.kpcHo||'';
+    $('#recKpcReading').value=r.kpcReading||'';
+    $('#recKpcMemo').value=r.kpcMemo||'';
+    $('#recEnd').value=r.end||'';
+    $('#recResult').value=r.result||'';
+    $('#recMemo').value=r.memo||'';
+
+    const pcs=Array.isArray(r.pcs)?r.pcs:[];
+    let count=r.count||pcs.length||1;
+    if(count==='duel') $('#recCount').value='duel';
+    else $('#recCount').value=String(Math.max(1,Math.min(20,Number(count)||pcs.length||1)));
+    buildRecPc(pcs.length?pcs:[{ho:'',pc:'',pl:'',reading:'',memo:''}]);
+
+    if(typeof forceRecordOrderV512==='function')forceRecordOrderV512();
+
+    // Locate the clicked record card and move the editor directly below it.
+    const editButtons=[...document.querySelectorAll('#recordList button')];
+    const btn=editButtons.find(b=>{
+      const oc=b.getAttribute('onclick')||'';
+      return oc.includes(`editRecord('${id}')`)||oc.includes(`editRecord("${id}")`);
+    });
+    const card=btn?.closest('.item,.record-card,.card,[data-record-id]');
+    if(card){
+      card.insertAdjacentElement('afterend',form);
+      form.classList.add('inline-record-edit-v513');
+      // No scrollIntoView: keep exactly where the user was looking.
+    }
+  };
+
+  // Save / clear returns the editor to its normal home only after the action.
+  document.addEventListener('click',function(e){
+    if(e.target.closest&&e.target.closest('#saveRecord,#clearRecord')){
+      setTimeout(()=>{
+        restoreRecordFormHomeV513();
+        document.getElementById('manualRecordForm')?.classList.remove('inline-record-edit-v513');
+      },0);
+    }
   });
 })();
 </script></body></html>
