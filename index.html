@@ -1,0 +1,879 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>TRPG 卓管理ツール v4.6</title>
+<style>
+:root{--bg:#f6f3ee;--card:#fff;--ink:#282522;--sub:#756f68;--line:#ded8d0;--accent:#5f7668;--soft:#edf1ee}
+*{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}
+.wrap{max-width:900px;margin:auto;padding:16px 14px 70px}.title{font-size:22px;font-weight:750;margin:4px 0 14px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;position:sticky;top:0;background:var(--bg);padding:8px 0;z-index:10}
+.tab{border:1px solid var(--line);background:#fff;padding:11px 6px;border-radius:12px;font-weight:700;color:var(--ink);-webkit-text-fill-color:var(--ink);opacity:1}.tab.active{background:var(--accent);color:#fff;-webkit-text-fill-color:#fff;border-color:var(--accent)}
+.panel{display:none}.panel.active{display:block}.card{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:15px;margin:11px 0}
+h2{font-size:17px;margin:0 0 12px} h3{font-size:15px;margin:14px 0 8px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+label{display:block;font-size:12px;color:var(--sub);margin-bottom:5px}input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;background:#fff;color:var(--ink)}textarea{min-height:100px;resize:vertical}
+button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);color:white;font-weight:700}.secondary{background:var(--soft);color:var(--ink);border:1px solid var(--line)}.danger{background:#8b5d5d}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.radio{display:flex;gap:14px;margin:7px 0 12px}.radio label{font-size:14px;color:var(--ink);margin:0}.radio input{width:auto}
+.pcrow{display:grid;grid-template-columns:90px 1fr 1fr;gap:8px;margin:8px 0}.output{white-space:pre-wrap;background:#fbfaf8;border:1px dashed var(--line);border-radius:11px;padding:13px;min-height:90px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.drop{border:2px dashed #a9b5ad;border-radius:14px;padding:25px 12px;text-align:center;background:#fafcfb}.drop.drag{background:#e9f0eb}.muted{font-size:12px;color:var(--sub)}.item{border-top:1px solid var(--line);padding:12px 0}.item:first-child{border-top:0}.pill{display:inline-block;padding:3px 8px;border-radius:999px;background:var(--soft);font-size:12px;margin:2px}
+.hidden{display:none!important}.right{text-align:right}@media(max-width:650px){.grid,.grid3{grid-template-columns:1fr}.pcrow{grid-template-columns:80px 1fr}.pcrow .pl{grid-column:2}.tabs{font-size:13px}}
+
+.kindbadge{display:inline-block;font-weight:800;margin-right:8px;padding:2px 9px;border-radius:999px;font-size:.82em;line-height:1.5;border:1px solid currentColor}
+.kindbadge.new{color:#b85c78;background:#ffe8f0;border-color:#f3b7ca}
+.kindbadge.cont{color:#4f83a8;background:#e6f5ff;border-color:#afd8f2}
+</style>
+</head>
+<body><div class="wrap">
+<div class="title">TRPG 卓管理ツール <span class="muted">v4.6</span></div>
+<div class="tabs">
+<button class="tab active" data-tab="report">卓報告</button>
+<button class="tab" data-tab="cf">クリファン</button>
+<button class="tab" data-tab="records">卓記録</button>
+<button class="tab" data-tab="plans">卓予定</button>
+</div>
+
+<section id="report" class="panel active">
+<div class="card"><h2>卓報告を作る</h2>
+<div class="grid"><div><label>システム</label><select id="system"><option>CoC6</option><option>CoC7</option><option>エモクロアTRPG</option><option value="custom">編集（自由入力）</option></select></div>
+<div id="customSystemBox" class="hidden"><label>システム名</label><input id="customSystem"></div></div>
+<div class="grid" style="margin-top:10px"><div><label>シナリオ名</label><input id="scenario"></div><div id="reportAliasBox"><label>シナリオ略称</label><input id="reportAlias" placeholder="任意"></div></div>
+<div class="radio"><label><input type="radio" name="kind" value="new" checked> 新規卓</label><label><input type="radio" name="kind" value="cont"> 継続</label></div>
+<div id="contBox" class="hidden"><label>継続名</label><input id="continueLabel"></div>
+<div class="grid"><div><label>人数</label><select id="playerCount"></select></div><div><label>HO</label><select id="hoMode"><option value="number">Ho1〜</option><option value="custom">自由入力</option><option value="none">なし</option></select></div></div>
+<h3>KPC / KP</h3>
+<div class="pcrow"><input id="kpcHo" placeholder="HO"><input id="kpcName" placeholder="PC名"><input id="kpName" placeholder="PL名"></div>
+<h3>PC / PL</h3><div id="pcFields"></div>
+<div class="grid" style="margin-top:10px"><div><label>エンド名</label><input id="endName"></div><div><label>結果</label><input id="endResult"></div></div>
+<div class="row" style="margin-top:12px"><button id="makeReport">投稿文を作る</button><button class="secondary" id="saveReportRecord">卓記録にも登録</button><button class="secondary" id="clearReport">クリア</button></div>
+</div>
+<div class="card" id="contCharacterCard">
+<h2>同じシナリオの過去キャラクター</h2>
+<div class="muted">継続卓の「継続名」から、卓記録のシナリオ名・略称・「継続：○○」を検索してKPC・PCを表示します。PC名・PL名を個別にコピーできます。</div>
+<div style="margin-top:8px"><input id="contRecordSearch" placeholder="卓記録内を検索"></div>
+<div id="contCharacterMatches" style="margin-top:10px"><span class="muted">継続名を入力すると表示されます。</span></div>
+</div>
+<div class="card"><h2>投稿文</h2><div class="muted" style="margin-bottom:7px">作成後、この欄をタップして投稿文を直接編集できます。</div><div id="reportOutput" class="output" contenteditable="true" spellcheck="false" style="font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Yu Gothic',sans-serif;min-height:140px;white-space:pre-wrap"></div><div class="right" style="margin-top:9px"><button id="copyReport">コピー</button></div></div>
+</section>
+
+<section id="cf" class="panel">
+<div class="card"><h2>ココフォリアログを登録</h2>
+<div id="dropZone" class="drop"><strong>ココフォリアのHTMLログをここにドラッグ＆ドロップ</strong><br><span class="muted">または下からファイルを選択</span><br><input id="logFile" type="file" accept=".html,.htm,text/html,.txt,text/plain" style="margin-top:10px"></div>
+<div class="grid" style="margin-top:12px"><div><label>日にち</label><input id="cfDate"></div><div><label>シナリオ名</label><input id="cfScenario"></div></div>
+<div class="grid" style="margin-top:8px"><div><label>継続名（必要な場合）</label><input id="cfCont"></div><div><label>「総C/F：」の右に表示するPC</label><select id="myPc"><option value="">選択なし</option></select></div></div>
+<div id="parseStatus" class="muted" style="margin-top:10px">ログを読み込むとPCごとのC/Fを解析します。</div>
+<div id="cfEditTotals" style="margin-top:10px"></div>
+<div id="cfPreview" class="output" style="margin-top:10px"></div>
+<div style="margin-top:10px"><label>メモ</label><textarea id="cfMemo" rows="3"></textarea></div>
+<div class="row" style="margin-top:10px"><button id="saveCf">この記録を保存</button><button class="secondary" id="manualCf">PCを手動追加</button></div>
+<div id="manualCfBox"></div>
+</div>
+<div class="card"><h2>期間集計</h2>
+<div class="grid3"><div><label>開始日</label><input id="fromDate"></div><div><label>終了日</label><input id="toDate"></div><div><label>集計方法</label><select id="sumMode"><option value="mine">各卓で指定したPC</option><option value="character">特定PC</option><option value="all">卓全体</option></select></div></div>
+<div id="sumPcBox" class="hidden" style="margin-top:8px"><label>PC名</label><select id="sumPc"></select></div>
+<div style="margin-top:10px"><button id="calcCf">集計する</button></div><div id="sumOutput" class="output" style="margin-top:10px"></div>
+</div>
+<div class="card"><h2>保存したクリファン</h2><div id="cfHistory"></div></div>
+</section>
+
+<section id="records" class="panel">
+<div class="card"><h2>卓報告をペーストして読み込む</h2>
+<label>卓報告本文</label>
+<textarea id="reportPaste"></textarea>
+<div class="row" style="margin-top:10px"><button id="parseReportPaste">読み込む</button><button class="secondary" id="clearReportPaste">クリア</button></div>
+<div id="pasteStatus" class="muted" style="margin-top:8px">読み込むと下の「卓を手動登録 / 編集」に内容を入れます。日付・読み方・メモはあとから追加できます。</div>
+</div>
+<div class="card" id="manualRecordForm"><h2>卓を手動登録 / 編集</h2>
+<input type="hidden" id="editRecordId">
+<div class="grid3"><div><label>日にち</label><input id="recDate"></div><div><label>システム</label><select id="recSystem"><option value="CoC6">CoC6</option><option value="CoC7">CoC7</option><option value="エモクロアTRPG">エモクロアTRPG</option><option value="custom">編集（自由入力）</option></select><input id="recSystemCustom" class="hidden" placeholder="システム名" style="margin-top:6px"></div><div><label>シナリオ名</label><input id="recScenario"></div></div>
+<div style="margin-top:8px"><label>シナリオ略称</label><input id="recAlias" placeholder="新規卓のみ・任意"></div>
+<div class="grid3" style="margin-top:8px"><div><label>卓区分</label><select id="recKind"><option value="new">新規</option><option value="cont">継続</option></select></div><div><label>継続メモ</label><input id="recContMemo"></div><div><label>エンド名 / 結果</label><div class="grid"><input id="recEnd" placeholder="エンド名"><input id="recResult" placeholder="結果"></div></div></div>
+<div id="recContCharacterCard" class="card" style="padding:10px;margin-top:8px">
+  <b>継続メモから過去キャラクター</b>
+  <div class="muted">継続メモに文字を入力すると、卓記録のシナリオ名・略称・継続メモから探します。</div>
+  <div id="recContCharacterMatches" style="margin-top:8px"><span class="muted">継続メモを入力すると表示されます。</span></div>
+</div>
+<div id="recKpcFields" style="margin-top:8px">
+<h3>KPC / KP</h3>
+<div class="muted">新規卓・継続卓どちらでも、タイマンなどでKPCがいる場合に登録できます。</div>
+<div class="card" style="padding:10px;margin-top:8px">
+<div class="pcrow"><input id="recKpcLabel" placeholder="KPC" value="KPC"><input id="recKpc" placeholder="KPC名"><input id="recKp" placeholder="KP名"></div><div style="margin-top:6px"><input id="recKpcHo" placeholder="HO（必要な場合）"></div>
+<div class="grid" style="margin-top:8px"><div><label>KPCの読み方</label><input id="recKpcReading" placeholder="KPCの読み方"></div><div><label>KPCメモ</label><input id="recKpcMemo" placeholder="KPCメモ"></div></div>
+</div></div>
+<div style="margin-top:8px"><label>メモ</label><input id="recMemo"></div>
+<div style="margin-top:8px"><label>人数</label><select id="recCount"></select></div><div id="recPcFields"></div>
+<div class="row" style="margin-top:10px"><button id="saveRecord">保存</button><button class="secondary" id="cancelEdit">入力をクリア</button></div>
+</div>
+</section><div class="card"><h2>卓記録</h2>
+<div class="grid"><div><label>検索</label><input id="recordSearch"></div><div><label>対象</label><select id="recordFilter"><option value="all">すべて</option><option value="pomeKP">ぽめがKP/DLのみ</option><option value="pomePlayer">ぽめがPC/KPC/DPC参加</option><option value="dateOnly">日にち指定</option><option value="newOnly">新規のみ</option><option value="contOnly">継続のみ</option><option value="scenario">シナリオ</option><option value="pc">PC名・読み</option><option value="pl">PL名</option><option value="memo">メモ</option></select></div></div>
+<div class="grid3" style="margin-top:8px"><div><label>開始日（検索欄は空欄でOK）</label><input id="recordFrom" placeholder="例：20240901"></div><div><label>終了日</label><input id="recordTo" placeholder="例：20240930"></div><div><label>並び順</label><select id="recordSort"><option value="new">新しい日付から</option><option value="old">古い日付から</option></select></div></div>
+<div class="muted" style="margin-top:7px">日にちだけで絞り込む場合は、検索欄は空欄のままでOKです。開始日・終了日だけ入力してください。</div>
+<div id="recordList" style="margin-top:10px"></div>
+</div>
+
+</div>
+
+
+<section id="plans" class="panel">
+<div class="card" id="planForm">
+<h2>卓予定を登録 / 編集</h2>
+<input type="hidden" id="editPlanId">
+<div class="grid3">
+  <div><label>状態</label><select id="planStatus"><option value="予定">行く予定</option><option value="手繋ぎ">手繋ぎ</option><option value="行きたい">行きたいシナリオ</option><option value="未分類">未分類</option><option value="通過済み">通過済み</option></select></div>
+  <div><label>シナリオ名</label><input id="planScenario" placeholder="シナリオ名"></div>
+  <div><label>PL人数</label><input id="planPlayers" placeholder="例：2PL / 4PL"></div>
+</div>
+<div class="grid3" style="margin-top:8px">
+  <div><label>システム</label><select id="planSystem"><option value="">未設定</option><option value="CoC6">CoC6</option><option value="CoC7">CoC7</option><option value="エモクロアTRPG">エモクロアTRPG</option></select></div>
+  <div><label>所要時間</label><input id="planDuration" placeholder="例：6時間 / 12〜15時間"></div>
+  <div><label>一緒に行く人</label><input id="planPeople" placeholder="例：くじら、らっこさん"></div>
+  <div><label>いつ頃</label><input id="planTiming" placeholder="例：10月頃 / 冬 / 年内 / 未定"></div>
+</div>
+<div class="grid" style="margin-top:8px">
+  <div><label>自分のPC</label><input id="planPc" placeholder="決まっていれば任意"></div>
+  <div><label>メモ</label><input id="planMemo" placeholder="KP探し中、○○継続など"></div>
+</div>
+<div class="row" style="margin-top:10px"><button id="savePlan">保存</button><button class="secondary" id="clearPlan">入力をクリア</button></div>
+</div>
+
+<div class="card">
+<h2>卓予定</h2>
+<div class="grid3">
+ <div><label>検索</label><input id="planSearch" placeholder="シナリオ名・人・時期・メモなど"></div>
+ <div><label>状態</label><select id="planFilter"><option value="all">すべて</option><option value="予定">行く予定</option><option value="手繋ぎ">手繋ぎ</option><option value="行きたい">行きたいシナリオ</option><option value="未分類">未分類</option><option value="通過済み">通過済み</option></select></div>
+ <div><label>並び順</label><select id="planSort"><option value="new">新しく登録した順</option><option value="old">古く登録した順</option></select></div>
+</div>
+<div id="planList" style="margin-top:10px"></div>
+</div>
+</section>
+
+<div class="card" id="backupCard">
+<h2>データのバックアップ</h2>
+<p class="muted">卓記録・クリファン記録など、このツールの保存データを1つのファイルに保存できます。</p>
+<div class="row">
+<button id="exportBackup">バックアップを保存</button>
+<label class="secondary" style="display:inline-flex;align-items:center;justify-content:center;padding:10px 14px;border-radius:12px;cursor:pointer">
+バックアップから復元<input id="importBackup" type="file" accept=".json,application/json" hidden>
+</label>
+</div>
+<div id="backupStatus" class="muted" style="margin-top:8px">最終バックアップ：まだありません</div>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const LS={records:'trpg_records_v1',cf:'trpg_cf_v1',plans:'trpg_plans_v1'};
+const load=k=>{try{return JSON.parse(localStorage.getItem(k)||'[]')}catch{return[]}};
+const save=(k,v)=>localStorage.setItem(k,JSON.stringify(v));
+(function migrateRecordSystems(){
+ try{
+  let a=load(LS.records),changed=false;
+  a=a.map(r=>{if(!r.system){changed=true;return {...r,system:'CoC6'}}if(r.system==='エモクロア'){changed=true;return {...r,system:'エモクロアTRPG'}}return r});
+  if(changed)save(LS.records,a)
+ }catch(e){}
+})();
+
+const esc=s=>(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fancy=s=>[...String(s||'')].map(ch=>{let c=ch.codePointAt(0);if(c>=65&&c<=90)return String.fromCodePoint(0x1D400+c-65);if(c>=97&&c<=122)return String.fromCodePoint(0x1D41A+c-97);if(c>=48&&c<=57)return String.fromCodePoint(0x1D7CE+c-48);return ch}).join('');
+function normDate(s){
+ s=(s||'').trim();
+ let digits=s.replace(/\D/g,'');
+ if(/^\d{8}$/.test(digits)){
+   let y=+digits.slice(0,4),m=+digits.slice(4,6),d=+digits.slice(6,8);
+   if(m>=1&&m<=12&&d>=1&&d<=31)return `${y}/${m}/${d}`
+ }
+ s=s.replace(/-/g,'/');
+ let p=s.split('/');
+ if(p.length===3){
+   if(p[0].length===2)p[0]='20'+p[0];
+   return `${+p[0]}/${+p[1]}/${+p[2]}`
+ }
+ return s
+}
+function dateNum(s){
+ s=(s||'').trim();
+ let digits=s.replace(/\D/g,'');
+ if(/^\d{8}$/.test(digits))return Number(digits);
+ let m=s.match(/(\d{2,4})\D+(\d{1,2})\D+(\d{1,2})/);
+ if(!m)return 0;
+ let y=Number(m[1]);if(y<100)y+=2000;
+ return y*10000+Number(m[2])*100+Number(m[3])
+}
+function fullScenario(base,cont){return cont?.trim()?`${base}(${cont.trim().replace(/継続$/,'')}継続)`:base}
+$$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));$$('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.tab).classList.add('active');renderAll()});
+$('#playerCount').add(new Option('ソロ','solo')); $('#recCount').add(new Option('タイマン','duel')); for(let i=1;i<=20;i++){ $('#playerCount').add(new Option(i,i)); $('#recCount').add(new Option(i,i)); } $('#playerCount').value=4;$('#recCount').value=4;
+$('#system').onchange=()=>$('#customSystemBox').classList.toggle('hidden',$('#system').value!=='custom');
+function syncKindUI(){let cont=document.querySelector('input[name=kind]:checked').value==='cont';$('#contBox').classList.toggle('hidden',!cont);$('#reportAliasBox').classList.toggle('hidden',cont);if(!cont&&$('#playerCount').value==='solo'){$('#playerCount').value='1';buildPc()}}
+$$('input[name=kind]').forEach(r=>r.onchange=()=>{syncKindUI();renderContinuationCharacters()});syncKindUI();
+function buildPc(){let n=$('#playerCount').value==='solo'?1:+$('select#playerCount').value, old=$$('.pcrow.reportpc').map(r=>({ho:r.querySelector('.ho').value,pc:r.querySelector('.pc').value,pl:r.querySelector('.pl').value}));$('#pcFields').innerHTML='';for(let i=0;i<n;i++){let d=document.createElement('div');d.className='pcrow reportpc';let ho=$('#hoMode').value==='number'?`Ho${i+1}`:'';d.innerHTML=`<input class="ho" placeholder="HO" ${$('#hoMode').value==='none'?'disabled':''} value="${esc($('#hoMode').value==='none'?'':(old[i]?.ho??ho))}"><input class="pc" placeholder="PC名" value="${esc(old[i]?.pc||'')}"><input class="pl" placeholder="PL名" value="${esc(old[i]?.pl||'')}">`;$('#pcFields').append(d)}}
+$('#playerCount').onchange=buildPc;
+$('#hoMode').onchange=()=>{
+ if($('#hoMode').value==='none')$$('.reportpc .ho').forEach(x=>x.value='');
+ buildPc()
+};
+buildPc();
+function sameScenarioName(a,b){
+ let clean=x=>(x||'').trim().replace(/\s+/g,' ').replace(/継続$/,'').toLowerCase();
+ return clean(a)===clean(b)
+}
+function renderContinuationCharacters(){
+ let box=$('#contCharacterMatches');if(!box)return;
+ let cont=document.querySelector('input[name=kind]:checked')?.value==='cont';
+ let contName=$('#continueLabel').value.trim().replace(/継続$/,'');
+ let q=($('#contRecordSearch')?.value||'').trim().toLowerCase();
+ if(!cont){box.innerHTML='<span class="muted">継続卓を選ぶと表示されます。</span>';return}
+ let all=load(LS.records);
+ let rows=contName?all.filter(r=>
+   sameScenarioName(r.scenario,contName)||
+   sameScenarioName(r.alias,contName)||
+   sameScenarioName(r.contMemo,contName)
+ ):all;
+ if(q)rows=rows.filter(r=>{
+   let pcs=r.pcs||[];
+   return `${r.date||''} ${r.scenario||''} ${r.alias||''} ${r.contMemo||''} ${r.kp||''} ${r.kpc||''} ${r.kpcReading||''} ${r.kpcMemo||''} ${r.memo||''} ${pcs.map(x=>`${x.ho||''} ${x.pc||''} ${x.reading||''} ${x.pl||''} ${x.memo||''}`).join(' ')}`.toLowerCase().includes(q)
+ });
+ if(!contName&&!q){box.innerHTML='<span class="muted">継続名を入力するか、卓記録内を検索してください。</span>';return}
+ let chars=[];
+ rows.forEach(r=>{
+   if(r.kpc)chars.push({name:r.kpc,who:r.kp||'',type:'KPC',scenario:r.scenario||''});
+   (r.pcs||[]).forEach(x=>{if(x.pc)chars.push({name:x.pc,who:x.pl||'',type:'PC',scenario:r.scenario||''})})
+ });
+ let seen=new Set();chars=chars.filter(x=>{let k=x.type+'|'+x.name+'|'+x.who;if(seen.has(k))return false;seen.add(k);return true});
+ if(!chars.length){box.innerHTML='<span class="muted">該当するキャラクター記録は見つかりませんでした。</span>';return}
+ box.innerHTML=chars.map((x,i)=>`<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:5px 0"><span class="pill">${esc(x.type+'：'+x.name+(x.who?' / '+x.who:'')+(x.scenario?'｜'+x.scenario:''))}</span><button class="secondary contCharCopy" data-i="${i}" data-copy="name">PC名コピー</button>${x.who?`<button class="secondary contCharCopy" data-i="${i}" data-copy="who">PL名コピー</button>`:''}</div>`).join('');
+ $$('.contCharCopy').forEach(b=>b.onclick=async()=>{let x=chars[+b.dataset.i],v=b.dataset.copy==='who'?x.who:x.name,label=b.dataset.copy==='who'?'PL名':'PC名';try{await navigator.clipboard.writeText(v);let old=b.textContent;b.textContent='コピーしました';setTimeout(()=>b.textContent=old,900)}catch{prompt(label+'をコピーしてください',v)}})
+}
+$('#continueLabel').addEventListener('input',renderContinuationCharacters);
+$('#contRecordSearch').addEventListener('input',renderContinuationCharacters);
+function reportData(){let cont=document.querySelector('input[name=kind]:checked').value==='cont';return{date:'',system:($('#system').value==='custom'?($('#customSystem').value.trim()||'CoC6'):$('#system').value),scenario:$('#scenario').value.trim(),alias:cont?'':$('#reportAlias').value.trim(),cont:cont?$('#continueLabel').value.trim():'',kp:$('#kpName').value.trim(),kpc:$('#kpcName').value.trim(),kpcHo:$('#kpcHo').value.trim(),end:$('#endName').value.trim(),result:$('#endResult').value.trim(),kpLess:!$('#kpcName').value.trim()&&!$('#kpName').value.trim(),pcs:$$('.reportpc').map(r=>({ho:r.querySelector('.ho').value.trim(),pc:r.querySelector('.pc').value.trim(),pl:r.querySelector('.pl').value.trim(),reading:'',memo:''}))}}
+function makeReport(){
+ let d=reportData(),cont=document.querySelector('input[name=kind]:checked').value==='cont',
+     solo=cont&&$('#playerCount').value==='solo',
+     sys=$('#system').value==='custom'?$('#customSystem').value.trim():$('#system').value;
+ let L=[`【${fancy(sys)}】${fancy(d.scenario)}`];
+ if(cont&&d.cont)L.push(`　↳${fancy(d.cont.replace(/継続$/,'')+'継続')}`);
+ L.push('');
+ let isEmo=(sys||'').includes('エモクロア');
+ let kpLess=!d.kpc&&!d.kp;
+ if(kpLess){
+   L.push('  ✦𝐊𝐏レス');
+ }else if(d.kpc){
+   L.push(isEmo?'  ✦𝐃𝐏𝐂/𝐃𝐋':'  ✦𝐊𝐏𝐂/𝐊𝐏');
+   L.push(`   ${d.kpcHo?fancy(d.kpcHo)+'┊':''}${fancy(d.kpc)}${d.kp?'：':''}${fancy(d.kp)}`);
+ }else{
+   L.push(`${isEmo?'  ✦𝐃𝐋':'  ✦𝐊𝐏'}┊${fancy(d.kp)}`);
+ }
+ L.push('');
+ L.push('  ✦𝐏𝐂/𝐏𝐋');
+ d.pcs.forEach(x=>{
+   if(x.pc||x.pl)L.push(`   ${x.ho?fancy(x.ho)+'┊':''}${fancy(x.pc)}${x.pc&&x.pl?'：':''}${fancy(x.pl)}`)
+ });
+ let e=$('#endName').value.trim(),r=$('#endResult').value.trim();
+ if(e||r){
+   L.push('');L.push('');
+   if(e)L.push(`  − ${fancy(e)} −${r?'　'+fancy(r):''}`);
+   else L.push(`  ${fancy(r)}`);
+ }
+ $('#reportOutput').textContent=L.join('\n');
+ return d
+}
+$('#makeReport').onclick=makeReport;$('#copyReport').onclick=async()=>{let t=$('#reportOutput').textContent;if(!t)return;try{await navigator.clipboard.writeText(t);alert('コピーしました')}catch{alert('コピーできませんでした')}};
+$('#clearReport').onclick=()=>{
+ let keepKind=document.querySelector('input[name=kind]:checked')?.value||'new';
+ let keepCount=$('#playerCount').value;
+ ['scenario','reportAlias','continueLabel','kpName','kpcName','kpcHo','endName','endResult','customSystem','contRecordSearch'].forEach(id=>{let el=$('#'+id);if(el)el.value=''});
+ $('#system').selectedIndex=0;$('#customSystemBox').classList.add('hidden');
+ $('#hoMode').value='number';
+ $$('.reportpc input').forEach(x=>x.value='');
+ $$('input[name=kind]').forEach(x=>x.checked=x.value===keepKind);
+ $('#playerCount').value=keepCount;
+ $('#pcFields').innerHTML='';buildPc();syncKindUI();
+ $$('.reportpc input.pc,.reportpc input.pl').forEach(x=>x.value='');
+ $('#reportOutput').textContent='';renderContinuationCharacters()
+};
+$('#saveReportRecord').onclick=()=>{
+ let d=reportData();
+ if(!d.scenario)return alert('シナリオ名を入力してください');
+ pendingPlanRecordId='';
+ pendingReportScenario=d.scenario;
+
+ // 保存はまだ行わず、「卓を手動登録 / 編集」に内容を引き継ぐ。
+ $('#editRecordId').value='';
+ $('#recDate').value='';
+ let rs=d.system||'CoC6';
+ if(['CoC6','CoC7','エモクロアTRPG'].includes(rs)){
+   $('#recSystem').value=rs;$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden')
+ }else{
+   $('#recSystem').value='custom';$('#recSystemCustom').value=rs;$('#recSystemCustom').classList.remove('hidden')
+ }
+ $('#recScenario').value=d.scenario||'';
+ $('#recAlias').value=d.alias||'';
+ $('#recKind').value=d.cont?'cont':'new';
+ $('#recContMemo').value=d.cont||'';
+ $('#recEnd').value=d.end||'';
+ $('#recResult').value=d.result||'';
+ $('#recKp').value=d.kp||'';
+ $('#recKpc').value=d.kpc||'';
+ $('#recKpcHo').value=d.kpcHo||'';
+ $('#recKpcReading').value='';
+ $('#recKpcMemo').value='';
+ $('#recKpcLabel').value=(rs==='エモクロアTRPG'?'DPC':'KPC');
+ $('#recMemo').value='';
+
+ let pcs=d.pcs||[];
+ let isDuel=!!d.kpc && pcs.length===1;
+ $('#recCount').value=isDuel?'duel':String(Math.max(1,Math.min(20,pcs.length||1)));
+ buildRecPc(pcs.map(x=>({ho:x.ho||'',pc:x.pc||'',pl:x.pl||'',reading:'',memo:''})));
+
+ // 卓記録タブを開いてから、手動登録 / 編集フォームへ移動する
+ $$('.tab').forEach(x=>x.classList.remove('active'));
+ $$('.panel').forEach(x=>x.classList.remove('active'));
+ let recordTab=document.querySelector('.tab[data-tab="records"]');
+ if(recordTab)recordTab.classList.add('active');
+ $('#records').classList.add('active');
+ renderRecords();
+
+ requestAnimationFrame(()=>{
+   $('#manualRecordForm').scrollIntoView({behavior:'smooth',block:'start'});
+   setTimeout(()=>$('#recDate').focus(),350);
+ });
+};
+
+let parsed={totalC:0,totalF:0,pcs:[]};
+
+function cfJudgeResult(text){
+  // CCFOLIA/BCDice result labels are authoritative.
+  // "スペシャル" alone is not a critical.
+  let c=/決定的成功|クリティカル|critical/i.test(text)?1:0;
+  let f=/致命的失敗|ファンブル|fumble/i.test(text)?1:0;
+  return[c,f];
+}
+function looksPercentileRoll(text){
+  return /(?:CCB|CC<=|1D100|1d100|RESB)\b/i.test(text) && /＞/.test(text);
+}
+function parseCcfoliaHtml(raw){
+  let doc=new DOMParser().parseFromString(raw,'text/html');
+  let map=new Map(), foundRoll=false;
+
+  [...doc.querySelectorAll('body > p, body p')].forEach(p=>{
+    let spans=p.querySelectorAll(':scope > span');
+    if(spans.length<3)return;
+    let actor=(spans[1].textContent||'').trim();
+    let roll=(spans[2].textContent||'').replace(/\s+/g,' ').trim();
+    if(!actor || !looksPercentileRoll(roll))return;
+    foundRoll=true;
+
+    // CCFOLIA exported logs use gray (#888888) for KP/system/NPC-side messages
+    // in the supplied format. Non-gray percentile rollers are treated as PC candidates.
+    let style=(p.getAttribute('style')||'').toLowerCase().replace(/\s/g,'');
+    let isGray=/color:(?:#888888|rgb\(136,136,136\))/.test(style);
+    if(isGray || /^(?:system|KP)$/i.test(actor))return;
+
+    let v=map.get(actor)||{pc:actor,c:0,f:0};
+    let [c,f]=cfJudgeResult(roll);
+    v.c+=c; v.f+=f;
+    map.set(actor,v);
+  });
+
+  if(!foundRoll)return null;
+  let pcs=[...map.values()];
+  return{
+    pcs,
+    totalC:pcs.reduce((n,x)=>n+x.c,0),
+    totalF:pcs.reduce((n,x)=>n+x.f,0)
+  };
+}
+function parseTextFallback(text){
+  let map=new Map();
+  text.split(/\r?\n/).forEach(line=>{
+    let [c,f]=cfJudgeResult(line);
+    if(!c&&!f)return;
+    let m=line.match(/(?:\[[^\]]+\]\s*)?([^:：\n]+?)\s*[:：]\s*(?:CCB|CC<=|1D100|1d100|RESB)/i);
+    let name=(m?.[1]||'不明').trim().replace(/^\[[^\]]+\]\s*/,'');
+    let v=map.get(name)||{pc:name,c:0,f:0};
+    v.c+=c;v.f+=f;map.set(name,v);
+  });
+  let pcs=[...map.values()];
+  return{pcs,totalC:pcs.reduce((n,x)=>n+x.c,0),totalF:pcs.reduce((n,x)=>n+x.f,0)};
+}
+function parseLog(raw,fileName=''){
+  if(/\.html?$/i.test(fileName)||/<(?:!doctype\s+html|html|body|p)\b/i.test(raw)){
+    let x=parseCcfoliaHtml(raw);
+    if(x)return x;
+  }
+  return parseTextFallback(raw);
+}
+function renderCfEditor(){
+ let box=$('#cfEditTotals'); if(!box)return;
+ let rows=`<div class="card" style="padding:10px"><b>検出結果を修正</b>
+ <div class="grid" style="margin-top:8px"><div><label>卓全体 C</label><input id="editTotalC" type="number" min="0" value="${parsed.totalC}"></div><div><label>卓全体 F</label><input id="editTotalF" type="number" min="0" value="${parsed.totalF}"></div></div>
+ <div style="margin-top:8px"><b>PCごとのC/F</b></div>`;
+ parsed.pcs.forEach((x,i)=>rows+=`<div class="grid3" style="margin-top:6px"><div><label>PC名</label><input class="cfPcName" data-i="${i}" value="${esc(x.pc)}"></div><div><label>C</label><input class="cfPcC" data-i="${i}" type="number" min="0" value="${x.c}"></div><div><label>F</label><input class="cfPcF" data-i="${i}" type="number" min="0" value="${x.f}"></div></div>`);
+ box.innerHTML=rows+'</div>';
+ $('#editTotalC').oninput=e=>{parsed.totalC=Math.max(0,+e.target.value||0);renderCfPreview()};
+ $('#editTotalF').oninput=e=>{parsed.totalF=Math.max(0,+e.target.value||0);renderCfPreview()};
+ $$('.cfPcName').forEach(el=>el.oninput=e=>{let i=+e.target.dataset.i,old=parsed.pcs[i].pc;parsed.pcs[i].pc=e.target.value;refreshMyPc(old);renderCfPreview()});
+ $$('.cfPcC').forEach(el=>el.oninput=e=>{parsed.pcs[+e.target.dataset.i].c=Math.max(0,+e.target.value||0);renderCfPreview()});
+ $$('.cfPcF').forEach(el=>el.oninput=e=>{parsed.pcs[+e.target.dataset.i].f=Math.max(0,+e.target.value||0);renderCfPreview()});
+}
+function refreshMyPc(prefer){
+ let current=prefer!==undefined?prefer:$('#myPc').value;
+ $('#myPc').innerHTML='<option value="">選択なし</option>'+parsed.pcs.map(x=>`<option value="${esc(x.pc)}">${esc(x.pc)}</option>`).join('');
+ if(parsed.pcs.some(x=>x.pc===current))$('#myPc').value=current;
+}
+function renderCfPreview(){
+ let sc=fullScenario($('#cfScenario').value.trim(),$('#cfCont').value.trim()),mine=parsed.pcs.find(x=>x.pc===$('#myPc').value),L=[];
+ if($('#cfDate').value)L.push(`日にち：${normDate($('#cfDate').value)}`);
+ if(sc)L.push(`シナリオ名：${sc}`);
+ L.push(`総C/F：${parsed.totalC}c${parsed.totalF}f${mine?'：'+mine.c+'c'+mine.f+'f':''}`);
+ L.push('');
+ parsed.pcs.forEach(x=>L.push(`${x.pc}　${x.c}c${x.f}f`));
+ $('#cfPreview').textContent=L.join('\n')
+}
+function setParsed(p){
+ parsed={totalC:+p.totalC||0,totalF:+p.totalF||0,pcs:(p.pcs||[]).map(x=>({pc:x.pc||'',c:+x.c||0,f:+x.f||0}))};
+ refreshMyPc();renderCfEditor();
+ $('#parseStatus').textContent=`${parsed.pcs.length}名のPC候補を検出 / 合計 ${parsed.totalC}c${parsed.totalF}f（下で修正できます）`;
+ renderCfPreview()
+}
+async function handleFile(file){if(!file)return;let raw=await file.text();setParsed(parseLog(raw,file.name))}
+$('#logFile').onchange=e=>handleFile(e.target.files[0]);
+['dragenter','dragover'].forEach(ev=>$('#dropZone').addEventListener(ev,e=>{e.preventDefault();$('#dropZone').classList.add('drag')}));
+['dragleave','drop'].forEach(ev=>$('#dropZone').addEventListener(ev,e=>{e.preventDefault();$('#dropZone').classList.remove('drag')}));
+$('#dropZone').addEventListener('drop',e=>handleFile(e.dataTransfer.files[0]));
+['cfDate','cfScenario','cfCont'].forEach(id=>$('#'+id).oninput=renderCfPreview);$('#myPc').onchange=renderCfPreview;
+$('#manualCf').onclick=()=>{
+ let name=prompt('PC名');if(!name)return;
+ let c=Math.max(0,Number(prompt('クリティカル数','0')||0)),f=Math.max(0,Number(prompt('ファンブル数','0')||0));
+ parsed.pcs.push({pc:name,c,f});parsed.totalC+=c;parsed.totalF+=f;refreshMyPc();renderCfEditor();renderCfPreview()
+};
+let editingCfId='';
+$('#saveCf').onclick=()=>{
+ if(!$('#cfScenario').value.trim())return alert('シナリオ名を入力してください');
+ let rec={id:editingCfId||crypto.randomUUID?.()||Date.now().toString(),date:normDate($('#cfDate').value),scenario:fullScenario($('#cfScenario').value.trim(),$('#cfCont').value.trim()),totalC:parsed.totalC,totalF:parsed.totalF,mine:$('#myPc').value,memo:$('#cfMemo').value.trim(),pcs:parsed.pcs.map(x=>({...x}))};
+ let a=load(LS.cf),i=a.findIndex(x=>x.id===rec.id);if(i>=0)a[i]=rec;else a.unshift(rec);
+ save(LS.cf,a);editingCfId='';$('#saveCf').textContent='この記録を保存';$('#cfMemo').value='';renderAll();alert('保存しました')
+};
+$('#sumMode').onchange=()=>$('#sumPcBox').classList.toggle('hidden',$('#sumMode').value!=='character');
+$('#calcCf').onclick=()=>{
+ let a=load(LS.cf),from=dateNum($('#fromDate').value)||0,to=dateNum($('#toDate').value)||99999999,mode=$('#sumMode').value,pc=$('#sumPc').value,c=0,f=0,n=0;
+ a.filter(x=>{let d=dateNum(x.date);return d>=from&&d<=to}).forEach(x=>{let v;if(mode==='all')v={c:x.totalC,f:x.totalF};else if(mode==='mine')v=(x.pcs||[]).find(p=>p.pc===x.mine);else v=(x.pcs||[]).find(p=>p.pc===pc);if(v){c+=+v.c||0;f+=+v.f||0;n++}});
+ $('#sumOutput').textContent=`対象：${n}卓\n合計：${c}c${f}f`
+};
+function renderCfHistory(){
+ let a=load(LS.cf);
+ $('#cfHistory').innerHTML=a.length?a.map(x=>{let mine=(x.pcs||[]).find(p=>p.pc===x.mine);return `<div class="item"><b>${esc(x.date||'日付なし')}　${esc(x.scenario)}</b>${x.memo?`<br><span class="muted">メモ：${esc(x.memo)}</span>`:''}<br>総C/F：${+x.totalC||0}c${+x.totalF||0}f${mine?`：${mine.c}c${mine.f}f`:''}<br><span class="muted">${(x.pcs||[]).map(p=>`${esc(p.pc)} ${p.c}c${p.f}f`).join(' / ')}</span><div class="right"><button class="secondary" onclick="editCf('${x.id}')">編集</button> <button class="danger" onclick="deleteCf('${x.id}')">削除</button></div></div>`}).join(''):'<span class="muted">まだ記録がありません。</span>';
+ let names=[...new Set(a.flatMap(x=>(x.pcs||[]).map(p=>p.pc)))].sort();$('#sumPc').innerHTML=names.map(n=>`<option>${esc(n)}</option>`).join('')
+}
+window.editCf=id=>{
+ let x=load(LS.cf).find(v=>v.id===id);if(!x)return;
+ editingCfId=x.id;
+ let m=(x.scenario||'').match(/^(.*)\((.*)継続\)$/);
+ $('#cfScenario').value=m?m[1]:x.scenario||'';$('#cfCont').value=m?m[2]:'';
+ $('#cfDate').value=x.date||'';$('#cfMemo').value=x.memo||'';
+ setParsed({totalC:x.totalC,totalF:x.totalF,pcs:x.pcs||[]});$('#myPc').value=x.mine||'';renderCfPreview();
+ $('#saveCf').textContent='編集内容を保存';
+ document.querySelector('#cf .card')?.scrollIntoView({behavior:'smooth',block:'start'})
+};
+window.deleteCf=id=>{if(confirm('削除しますか？')){save(LS.cf,load(LS.cf).filter(x=>x.id!==id));renderAll()}};
+
+function buildRecPc(vals=[]){
+ let duel=$('#recCount').value==='duel',n=duel?1:+$('#recCount').value;
+ $('#recPcFields').innerHTML='<h3>PC / PL</h3><div class="muted">'+(duel?'タイマンでは、先頭の「PC」表記も自由に編集できます。':'PC名と、そのPCを使用したPL名をセットで登録します。')+'</div>';
+ for(let i=0;i<n;i++){
+  let v=vals[i]||{},d=document.createElement('div');d.className='card recpc';d.style.padding='10px';
+  d.innerHTML=`<div class="pcrow"><input class="ho" placeholder="${duel?'PC':'HO'}" value="${esc(duel?(v.label||v.ho||'PC'):(v.ho||''))}"><input class="pc" placeholder="PC名" value="${esc(v.pc||'')}"><input class="pl" placeholder="PL名" value="${esc(v.pl||'')}"></div><div class="grid"><div><label>読み方</label><input class="reading" placeholder="PCの読み方" value="${esc(v.reading||'')}"></div><div><label>PCメモ</label><input class="pcmemo" placeholder="PCメモ" value="${esc(v.memo||'')}"></div></div>`;
+  $('#recPcFields').append(d)
+ }
+}
+$('#recCount').onchange=()=>buildRecPc();
+$('#recSystem').onchange=()=>$('#recSystemCustom').classList.toggle('hidden',$('#recSystem').value!=='custom');buildRecPc();
+function recForm(){return{id:$('#editRecordId').value||crypto.randomUUID?.()||Date.now().toString(),date:normDate($('#recDate').value),system:($('#recSystem').value==='custom'?($('#recSystemCustom').value.trim()||'CoC6'):$('#recSystem').value),scenario:$('#recScenario').value.trim(),alias:$('#recKind').value==='new'?$('#recAlias').value.trim():'',kind:$('#recKind').value,contMemo:$('#recContMemo').value.trim(),end:$('#recEnd').value.trim(),result:$('#recResult').value.trim(),kp:$('#recKp').value.trim(),kpc:$('#recKpc').value.trim(),kpcHo:$('#recKpcHo').value.trim(),kpcReading:$('#recKpcReading').value.trim(),kpcMemo:$('#recKpcMemo').value.trim(),kpcLabel:$('#recKpcLabel').value.trim()||'KPC',duel:$('#recCount').value==='duel',kpLess:!$('#recKpc').value.trim()&&!$('#recKp').value.trim(),memo:$('#recMemo').value.trim(),pcs:$$('.recpc').map(r=>({ho:$('#recCount').value==='duel'?'':r.querySelector('.ho').value.trim(),label:$('#recCount').value==='duel'?r.querySelector('.ho').value.trim():'',pc:r.querySelector('.pc').value.trim(),pl:r.querySelector('.pl').value.trim(),reading:r.querySelector('.reading').value.trim(),memo:r.querySelector('.pcmemo').value.trim()}))}}
+$('#saveRecord').onclick=()=>{
+ let r=recForm();if(!r.scenario)return alert('シナリオ名を入力してください');
+ let a=load(LS.records),i=a.findIndex(x=>x.id===r.id);if(i>=0)a[i]=r;else a.unshift(r);save(LS.records,a);
+
+ let fromPlan=pendingPlanRecordId;
+ let fromReport=pendingReportScenario;
+ pendingPlanRecordId='';pendingReportScenario='';
+
+ if(fromPlan){
+   markPlanCompleted(fromPlan);
+   clearRec();renderRecords();alert('卓記録を保存し、卓予定も通過済みにしました');return
+ }
+
+ clearRec();renderRecords();alert('卓記録を保存しました');
+
+ if(fromReport){
+   let matches=matchingActivePlans(fromReport);
+   if(matches.length===1){
+     if(confirm(`卓予定にも「${matches[0].scenario}」があります。\nこの予定も通過済みにしますか？`)){
+       markPlanCompleted(matches[0].id)
+     }
+   }else if(matches.length>1){
+     let names=matches.map((x,i)=>`${i+1}. ${x.scenario}${x.people?' / '+x.people:''}`).join('\n');
+     let ans=prompt(`同じシナリオの卓予定が複数あります。\n通過済みにする番号を入力してください。\n\n${names}\n\n何もしない場合はキャンセルしてください。`,'');
+     let n=Number(ans);
+     if(Number.isInteger(n)&&n>=1&&n<=matches.length)markPlanCompleted(matches[n-1].id)
+   }
+ }
+};
+function clearRec(){pendingPlanRecordId='';pendingReportScenario='';$('#editRecordId').value='';['recDate','recScenario','recAlias','recContMemo','recEnd','recResult','recKp','recKpc','recKpcHo','recKpcReading','recKpcMemo','recKpcLabel','recMemo'].forEach(id=>$('#'+id).value='');$('#recKind').value='new';$('#recSystem').value='CoC6';$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden');$('#recKpcLabel').value='KPC';$('#recCount').value=4;buildRecPc();renderRecContinuationCharacters()} $('#cancelEdit').onclick=clearRec;
+
+function renderRecContinuationCharacters(){
+ let box=$('#recContCharacterMatches'); if(!box)return;
+ let q=($('#recContMemo').value||'').trim().replace(/継続$/,'');
+ if(!q){box.innerHTML='<span class="muted">継続メモを入力すると表示されます。</span>';return}
+ let rows=load(LS.records).filter(r=>
+   sameScenarioName(r.scenario,q)||
+   sameScenarioName(r.alias,q)||
+   sameScenarioName(r.contMemo,q)
+ );
+ let chars=[];
+ rows.forEach(r=>{
+   if(r.kpc)chars.push({name:r.kpc,who:r.kp||'',type:r.system==='エモクロアTRPG'?'DPC':'KPC',scenario:r.scenario||''});
+   (r.pcs||[]).forEach(x=>{if(x.pc)chars.push({name:x.pc,who:x.pl||'',type:'PC',scenario:r.scenario||''})})
+ });
+ let seen=new Set();
+ chars=chars.filter(x=>{let k=x.type+'|'+x.name+'|'+x.who;if(seen.has(k))return false;seen.add(k);return true});
+ if(!chars.length){box.innerHTML='<span class="muted">該当するキャラクター記録は見つかりませんでした。</span>';return}
+ box.innerHTML=chars.map((x,i)=>`<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin:5px 0"><span class="pill">${esc(x.type+'：'+x.name+(x.who?' / '+x.who:'')+(x.scenario?'｜'+x.scenario:''))}</span><button class="secondary recContCopy" data-i="${i}" data-copy="name">PC名コピー</button>${x.who?`<button class="secondary recContCopy" data-i="${i}" data-copy="who">PL名コピー</button>`:''}</div>`).join('');
+ $$('.recContCopy').forEach(b=>b.onclick=async()=>{
+   let x=chars[+b.dataset.i],v=b.dataset.copy==='who'?x.who:x.name,label=b.dataset.copy==='who'?'PL名':'PC名';
+   try{await navigator.clipboard.writeText(v);let old=b.textContent;b.textContent='コピーしました';setTimeout(()=>b.textContent=old,900)}
+   catch{prompt(label+'をコピーしてください',v)}
+ })
+}
+$('#recContMemo').addEventListener('input',renderRecContinuationCharacters);
+function isPomeName(v){
+ return (v||'').replace(/[\s　]/g,'').replace(/さん$/,'')==='ぽめ'
+}
+function renderRecords(){
+ let q=$('#recordSearch').value.trim().toLowerCase(),f=$('#recordFilter').value,a=load(LS.records);
+ let from=dateNum($('#recordFrom').value)||0,to=dateNum($('#recordTo').value)||99999999;
+ let ok=r=>{
+   let d=dateNum(r.date); if(d<from||d>to)return false;
+   if(f==='newOnly'&&r.kind==='cont')return false;
+   if(f==='contOnly'&&r.kind!=='cont')return false;
+   let pc=r.pcs||[];
+   if(f==='pomeKP'){
+     // KP/DLとして「ぽめ」が担当している卓のみ。KPC/DPC側の参加判定は含めない。
+     if(!isPomeName(r.kp))return false;
+   }
+   if(f==='pomePlayer'){
+     // PCのPL、またはKPC/DPCを担当している側として「ぽめ」が参加している卓。
+     // KPC/DPCのプレイヤー名は保存上 r.kp に入るため、KPC/DPCが存在する卓ではこちら側にも含める。
+     let pcSide=pc.some(x=>isPomeName(x.pl));
+     let kpcSide=!!r.kpc && isPomeName(r.kp);
+     if(!(pcSide||kpcSide))return false;
+   }
+   if(!q)return true;
+   if(f==='scenario')return `${r.scenario||''} ${r.alias||''} ${r.contMemo||''}`.toLowerCase().includes(q);
+   if(f==='pl')return pc.some(x=>(x.pl||'').toLowerCase().includes(q));
+   if(f==='pc')return pc.some(x=>`${x.pc} ${x.reading}`.toLowerCase().includes(q));
+   if(f==='memo')return `${r.memo||''} ${r.contMemo||''} ${r.kpcMemo||''} ${pc.map(x=>x.memo||'').join(' ')}`.toLowerCase().includes(q);
+   return `${r.system||'CoC6'} ${r.scenario||''} ${r.alias||''} ${r.contMemo||''} ${r.end||''} ${r.result||''} ${r.kp||''} ${r.kpc||''} ${r.kpcReading||''} ${r.memo||''} ${pc.map(x=>`${x.pc||''} ${x.reading||''} ${x.pl||''} ${x.memo||''}`).join(' ')}`.toLowerCase().includes(q)
+ };
+ a=a.filter(ok).sort((x,y)=>($('#recordSort').value==='old'?1:-1)*(dateNum(x.date)-dateNum(y.date)));
+ $('#recordList').innerHTML=a.length?a.map(r=>`<div class="item"><b><span class="kindbadge ${r.kind==='cont'?'cont':'new'}">${r.kind==='cont'?'継続':'新規'}</span>${esc(r.date||'日付なし')}　${esc(r.scenario)}</b> <span class="pill">${esc(r.system||'CoC6')}</span>${r.alias?` <span class="pill">略称：${esc(r.alias)}</span>`:''}${r.contMemo?` <span class="pill">継続：${esc(r.contMemo)}</span>`:''}${(!r.kpc&&!r.kp)||r.kp||r.end||r.result?`<br><span class="muted">${(!r.kpc&&!r.kp)?'KPレス':(r.kp?(r.system==='エモクロアTRPG'?'DL：':'KP：')+esc(r.kp):'')}${((!r.kpc&&!r.kp)||r.kp)&&(r.end||r.result)?'　':''}${r.end||r.result?'【'+esc(r.end||'')+(r.end&&r.result?' ':'')+esc(r.result||'')+'】':''}</span>`:''}
+<div>
+${r.kpc?`<span class="pill">${r.kpcHo?esc(r.kpcHo)+'：':''}${esc(r.system==='エモクロアTRPG'?(r.kpcLabel&&r.kpcLabel!=='KPC'?r.kpcLabel:'DPC'):(r.kpcLabel||'KPC'))}：${esc(r.kpc)}${r.kpcReading?'（'+esc(r.kpcReading)+'）':''}${r.kp?' / '+esc(r.kp):''}${r.kpcMemo?'　📝'+esc(r.kpcMemo):''}</span>`:''}
+${(r.pcs||[]).filter(x=>x.pc||x.pl).map(x=>`<span class="pill">${r.duel?esc(x.label||'PC')+'：':(x.ho?esc(x.ho)+'：':'')}${!r.duel&&r.kind==='cont'?'PC：':''}${esc(x.pc)}${x.reading?'（'+esc(x.reading)+'）':''}${x.pl?' / '+esc(x.pl):''}${x.memo?'　📝'+esc(x.memo):''}</span>`).join('')}
+</div>${r.memo?`<div class="muted">${esc(r.memo)}</div>`:''}<div class="right"><button class="secondary" onclick="editRec('${r.id}')">編集</button> <button class="danger" onclick="deleteRec('${r.id}')">削除</button></div></div>`).join(''):'<span class="muted">該当する記録がありません。</span>'
+}
+$('#recordSearch').oninput=renderRecords;$('#recordFilter').onchange=renderRecords;
+$('#recordFrom').oninput=renderRecords;$('#recordTo').oninput=renderRecords;$('#recordSort').onchange=renderRecords;
+window.editRec=id=>{let r=load(LS.records).find(x=>x.id===id);if(!r)return;$('#editRecordId').value=r.id;$('#recDate').value=r.date||'';let rs=r.system||'CoC6';if(['CoC6','CoC7','エモクロアTRPG'].includes(rs)){$('#recSystem').value=rs;$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden')}else{$('#recSystem').value='custom';$('#recSystemCustom').value=rs;$('#recSystemCustom').classList.remove('hidden')}$('#recScenario').value=r.scenario||'';$('#recAlias').value=r.alias||'';$('#recKind').value=r.kind||(r.kpc||r.contMemo?'cont':'new');$('#recContMemo').value=r.contMemo||'';$('#recEnd').value=r.end||'';$('#recResult').value=r.result||'';$('#recKp').value=r.kp||'';$('#recKpc').value=r.kpc||'';$('#recKpcHo').value=r.kpcHo||'';$('#recKpcReading').value=r.kpcReading||'';$('#recKpcMemo').value=r.kpcMemo||'';$('#recKpcLabel').value=r.kpcLabel||'KPC';$('#recMemo').value=r.memo||'';$('#recCount').value=r.duel?'duel':Math.max(1,r.pcs?.length||1);buildRecPc(r.pcs||[]);renderRecContinuationCharacters();$('#manualRecordForm').scrollIntoView({behavior:'smooth',block:'start'})};
+window.deleteRec=id=>{if(confirm('削除しますか？')){save(LS.records,load(LS.records).filter(x=>x.id!==id));renderRecords()}};
+
+
+const CSV_SEED_PLANS=[{"id":"csv_1","status":"手繋ぎ","system":"CoC6","scenario":"半夏生に、きみと消ゆ","players":"2PL","duration":"","people":"コウコウヤ / コウコウヤぴて","timing":"","pc":"","memo":"","createdAt":1760000000000,"updatedAt":1760000000000},{"id":"csv_2","status":"手繋ぎ","system":"CoC6","scenario":"お前が人を殺すのだ","players":"","duration":"","people":"ひよこ","timing":"","pc":"","memo":"上条で行きます","createdAt":1760000000001,"updatedAt":1760000000001},{"id":"csv_3","status":"手繋ぎ","system":"CoC6","scenario":"同じ空には登れない","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000002,"updatedAt":1760000000002},{"id":"csv_4","status":"手繋ぎ","system":"CoC6","scenario":"ロトカ・ヴォルテラの愛堕討ち","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"→極道を握りそう","createdAt":1760000000003,"updatedAt":1760000000003},{"id":"csv_5","status":"手繋ぎ","system":"CoC6","scenario":"白百合の殼","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000004,"updatedAt":1760000000004},{"id":"csv_6","status":"手繋ぎ","system":"CoC6","scenario":"最果てまで。","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000005,"updatedAt":1760000000005},{"id":"csv_7","status":"手繋ぎ","system":"CoC6","scenario":"月夜に蠢くルーガルー","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"PC1→くじらPC2→あたし","createdAt":1760000000006,"updatedAt":1760000000006},{"id":"csv_8","status":"手繋ぎ","system":"CoC6","scenario":"イザナミの館","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"2026年以降かな","createdAt":1760000000007,"updatedAt":1760000000007},{"id":"csv_9","status":"手繋ぎ","system":"CoC6","scenario":"恐怖！怪奇！実録！人喰い廃墟！ に行ってみたｗ","players":"3PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000008,"updatedAt":1760000000008},{"id":"csv_10","status":"手繋ぎ","system":"CoC6","scenario":"あトの祀リ","players":"4PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000009,"updatedAt":1760000000009},{"id":"csv_11","status":"手繋ぎ","system":"CoC6","scenario":"女神は君に微笑まない","players":"4PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000010,"updatedAt":1760000000010},{"id":"csv_12","status":"手繋ぎ","system":"CoC6","scenario":"アレスの証明","players":"4PL","duration":"","people":"くじら","timing":"","pc":"","memo":"→くじらと3、4にぎるか","createdAt":1760000000011,"updatedAt":1760000000011},{"id":"csv_13","status":"手繋ぎ","system":"CoC6","scenario":"Quartet Session","players":"4PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000012,"updatedAt":1760000000012},{"id":"csv_14","status":"手繋ぎ","system":"CoC6","scenario":"愛異常","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000013,"updatedAt":1760000000013},{"id":"csv_15","status":"手繋ぎ","system":"CoC6","scenario":"浴槽に沈める","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"→浴キスでも透くんでも行けなくはないけどちょっと違うかも","createdAt":1760000000014,"updatedAt":1760000000014},{"id":"csv_16","status":"手繋ぎ","system":"CoC6","scenario":"なゆた孕みしもの","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000015,"updatedAt":1760000000015},{"id":"csv_17","status":"手繋ぎ","system":"CoC6","scenario":"未完生","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"くじらが回ったら","createdAt":1760000000016,"updatedAt":1760000000016},{"id":"csv_18","status":"手繋ぎ","system":"CoC6","scenario":"嗚呼、神が見ているのに！","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000017,"updatedAt":1760000000017},{"id":"csv_19","status":"手繋ぎ","system":"CoC6","scenario":"午前四時理想郷にて","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"→浴キス継続","createdAt":1760000000018,"updatedAt":1760000000018},{"id":"csv_20","status":"手繋ぎ","system":"CoC6","scenario":"死は君の名を覚えているか","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"→庭師継続","createdAt":1760000000019,"updatedAt":1760000000019},{"id":"csv_21","status":"手繋ぎ","system":"CoC6","scenario":"死なば諸共夢の中","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"→ヒモ商業BLのやつ","createdAt":1760000000020,"updatedAt":1760000000020},{"id":"csv_22","status":"手繋ぎ","system":"CoC6","scenario":"怪物お兄ちゃん","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000021,"updatedAt":1760000000021},{"id":"csv_23","status":"手繋ぎ","system":"CoC6","scenario":"Desire to Dominate.","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"ルーガルー継続","createdAt":1760000000022,"updatedAt":1760000000022},{"id":"csv_24","status":"手繋ぎ","system":"CoC6","scenario":"揃いの屑","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"→祝くじら、呪ぽめ","createdAt":1760000000023,"updatedAt":1760000000023},{"id":"csv_25","status":"手繋ぎ","system":"CoC6","scenario":"勝手に死んでんじゃねぇ！！","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"→死体埋めかな〜","createdAt":1760000000024,"updatedAt":1760000000024},{"id":"csv_26","status":"手繋ぎ","system":"CoC6","scenario":"喝采せよ、負け犬ども","players":"タイマン","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000025,"updatedAt":1760000000025},{"id":"csv_27","status":"手繋ぎ","system":"エモクロアTRPG","scenario":"あらしの夜に生まれた悪魔","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"","createdAt":1760000000026,"updatedAt":1760000000026},{"id":"csv_28","status":"手繋ぎ","system":"エモクロアTRPG","scenario":"喧炎","players":"2PL","duration":"","people":"くじら","timing":"","pc":"","memo":"エモクロア夜3日","createdAt":1760000000027,"updatedAt":1760000000027},{"id":"csv_29","status":"手繋ぎ","system":"CoC6","scenario":"墓穴に納まる（KP)","players":"2PL","duration":"","people":"KP / ぴてマンガン","timing":"","pc":"","memo":"ボイセ","createdAt":1760000000028,"updatedAt":1760000000028},{"id":"csv_30","status":"手繋ぎ","system":"CoC6","scenario":"SSS.S","players":"4PL","duration":"","people":"風浦さん","timing":"","pc":"","memo":"流卓した…？","createdAt":1760000000029,"updatedAt":1760000000029},{"id":"csv_31","status":"手繋ぎ","system":"CoC6","scenario":"半夏生、きみと消ゆ","players":"2PL","duration":"","people":"コウコウヤ / ぴて（KP)","timing":"","pc":"","memo":"","createdAt":1760000000030,"updatedAt":1760000000030},{"id":"csv_32","status":"手繋ぎ","system":"CoC6","scenario":"DOGMA","players":"2PL","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"重い腰をあげ","createdAt":1760000000031,"updatedAt":1760000000031},{"id":"csv_33","status":"手繋ぎ","system":"エモクロアTRPG","scenario":"鴉鷺無声","players":"2PL","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"","createdAt":1760000000032,"updatedAt":1760000000032},{"id":"csv_34","status":"手繋ぎ","system":"CoC6","scenario":"悪魔の唇","players":"3PL","duration":"","people":"くじらコウコウヤ","timing":"","pc":"","memo":"","createdAt":1760000000033,"updatedAt":1760000000033},{"id":"csv_35","status":"手繋ぎ","system":"CoC6","scenario":"舐薬","players":"3PL","duration":"","people":"くじらコウコウヤ","timing":"","pc":"","memo":"","createdAt":1760000000034,"updatedAt":1760000000034},{"id":"csv_36","status":"手繋ぎ","system":"CoC6","scenario":"嗤う人間師","players":"4PL","duration":"","people":"くじらコウコウヤぴて","timing":"","pc":"","memo":"1日で終わる","createdAt":1760000000035,"updatedAt":1760000000035},{"id":"csv_37","status":"手繋ぎ","system":"CoC6","scenario":"ハートフルワンダーランド","players":"4PL","duration":"","people":"くじらコウコウヤぴて","timing":"","pc":"","memo":"","createdAt":1760000000036,"updatedAt":1760000000036},{"id":"csv_38","status":"手繋ぎ","system":"CoC6","scenario":"サイレン清掃会社","players":"4PL","duration":"","people":"コウコウヤぴてもふ","timing":"","pc":"","memo":"","createdAt":1760000000037,"updatedAt":1760000000037},{"id":"csv_39","status":"手繋ぎ","system":"CoC6","scenario":"FRaTRlCiDE","players":"4PL","duration":"","people":"コウコウヤゆっくりさん","timing":"","pc":"","memo":"ゆっくりさんKP","createdAt":1760000000038,"updatedAt":1760000000038},{"id":"csv_40","status":"手繋ぎ","system":"CoC6","scenario":"K9-COLLECT.PP","players":"5PL","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"","createdAt":1760000000039,"updatedAt":1760000000039},{"id":"csv_41","status":"手繋ぎ","system":"CoC6","scenario":"補習","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"","createdAt":1760000000040,"updatedAt":1760000000040},{"id":"csv_42","status":"手繋ぎ","system":"CoC6","scenario":"Oc×ON","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"","createdAt":1760000000041,"updatedAt":1760000000041},{"id":"csv_43","status":"手繋ぎ","system":"CoC6","scenario":"997の不如帰","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"→かてるか","createdAt":1760000000042,"updatedAt":1760000000042},{"id":"csv_44","status":"手繋ぎ","system":"CoC6","scenario":"異かえりなさい","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"→かてるか？","createdAt":1760000000043,"updatedAt":1760000000043},{"id":"csv_45","status":"手繋ぎ","system":"CoC6","scenario":"淫映","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"→かてるか","createdAt":1760000000044,"updatedAt":1760000000044},{"id":"csv_46","status":"手繋ぎ","system":"CoC6","scenario":"トリップデリバリー","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"→希望をもち…","createdAt":1760000000045,"updatedAt":1760000000045},{"id":"csv_47","status":"手繋ぎ","system":"CoC6","scenario":"相対、恋に満つ","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"→かてるか","createdAt":1760000000046,"updatedAt":1760000000046},{"id":"csv_48","status":"手繋ぎ","system":"CoC6","scenario":"刹夏","players":"2PL","duration":"","people":"だかすさん","timing":"","pc":"","memo":"もしさん？だかすさんKP","createdAt":1760000000047,"updatedAt":1760000000047},{"id":"csv_49","status":"手繋ぎ","system":"CoC6","scenario":"獣性","players":"2PL","duration":"","people":"ぴて / コウコウヤぴて","timing":"","pc":"","memo":"コウコウヤKP","createdAt":1760000000048,"updatedAt":1760000000048},{"id":"csv_50","status":"手繋ぎ","system":"CoC6","scenario":"胡桃炸裂症候群ドロマイ","players":"2PL","duration":"","people":"ぴて","timing":"","pc":"","memo":"→手を繋いだ気がします","createdAt":1760000000049,"updatedAt":1760000000049},{"id":"csv_51","status":"手繋ぎ","system":"CoC6","scenario":"正偽のイデア 🐱","players":"4PL","duration":"","people":"ぴて","timing":"","pc":"","memo":"診断はHo4","createdAt":1760000000050,"updatedAt":1760000000050},{"id":"csv_52","status":"手繋ぎ","system":"CoC6","scenario":"To and Fro","players":"タイマン","duration":"","people":"ぴて","timing":"","pc":"","memo":"→百合営業","createdAt":1760000000051,"updatedAt":1760000000051},{"id":"csv_53","status":"手繋ぎ","system":"CoC6","scenario":"あの子に発狂","players":"タイマン","duration":"","people":"ぴて","timing":"","pc":"","memo":"→都市伝説課継続","createdAt":1760000000052,"updatedAt":1760000000052},{"id":"csv_54","status":"手繋ぎ","system":"CoC6","scenario":"愛飢ゑヲワル","players":"タイマン","duration":"","people":"ぴて","timing":"","pc":"","memo":"","createdAt":1760000000053,"updatedAt":1760000000053},{"id":"csv_55","status":"手繋ぎ","system":"CoC6","scenario":"ハンドカフト","players":"タイマン","duration":"","people":"ぴて","timing":"","pc":"","memo":"→誰で行く？","createdAt":1760000000054,"updatedAt":1760000000054},{"id":"csv_56","status":"手繋ぎ","system":"CoC6","scenario":"はりつく","players":"タイマン","duration":"","people":"ぴて","timing":"","pc":"","memo":"→アクィラ！","createdAt":1760000000055,"updatedAt":1760000000055},{"id":"csv_57","status":"手繋ぎ","system":"CoC6","scenario":"ラブスレイブポーション","players":"タイマン","duration":"","people":"ぴて","timing":"","pc":"","memo":"→アクィラ！","createdAt":1760000000056,"updatedAt":1760000000056},{"id":"csv_58","status":"手繋ぎ","system":"CoC6","scenario":"P-W-P","players":"２PL","duration":"","people":"ぴて","timing":"","pc":"","memo":"→だるまさんKP？","createdAt":1760000000057,"updatedAt":1760000000057},{"id":"csv_59","status":"手繋ぎ","system":"CoC6","scenario":"ヴェルネの天使は死を歌う","players":"3PL","duration":"","people":"鮭さんもふ","timing":"","pc":"","memo":"鮭さんKP→もう1人探す すずさん断ってしまった…","createdAt":1760000000058,"updatedAt":1760000000058},{"id":"csv_60","status":"手繋ぎ","system":"CoC6","scenario":"月がきれいだとかより","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"→ドロディス自","createdAt":1760000000059,"updatedAt":1760000000059},{"id":"csv_61","status":"手繋ぎ","system":"CoC6","scenario":"血命傷","players":"3PL","duration":"","people":"くじら靴の子さん","timing":"","pc":"","memo":"","createdAt":1760000000060,"updatedAt":1760000000060},{"id":"csv_62","status":"手繋ぎ","system":"CoC6","scenario":"町葬屋怪異譚","players":"4PL","duration":"","people":"くじら光雷さんハルヤさん","timing":"","pc":"","memo":"R8年度以降","createdAt":1760000000061,"updatedAt":1760000000061},{"id":"csv_63","status":"手繋ぎ","system":"CoC6","scenario":"カノヨ街","players":"4PL","duration":"","people":"くじらひよこもふ","timing":"","pc":"","memo":"","createdAt":1760000000062,"updatedAt":1760000000062},{"id":"csv_64","status":"手繋ぎ","system":"CoC6","scenario":"静なるテロリスタ","players":"4PL","duration":"","people":"風浦さんくじらくるみさん","timing":"","pc":"","memo":"くるみさんKPくじらSKP","createdAt":1760000000063,"updatedAt":1760000000063},{"id":"csv_65","status":"手繋ぎ","system":"CoC6","scenario":"K県警K課 くじら🐱","players":"4PL","duration":"","people":"くじらぴて","timing":"","pc":"","memo":"Ho2がいい","createdAt":1760000000064,"updatedAt":1760000000064},{"id":"csv_66","status":"手繋ぎ","system":"CoC6","scenario":"AreAy","players":"4PL","duration":"","people":"ひよこ風浦さんゆきひとさん","timing":"","pc":"","memo":"ピアニストが診断で出てる 来年度以降かな","createdAt":1760000000065,"updatedAt":1760000000065},{"id":"csv_67","status":"手繋ぎ","system":"CoC6","scenario":"ラストダンスは夜明けまで","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"","createdAt":1760000000066,"updatedAt":1760000000066},{"id":"csv_68","status":"手繋ぎ","system":"CoC6","scenario":"非合理性的独断逢瀬","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"→かてるか","createdAt":1760000000067,"updatedAt":1760000000067},{"id":"csv_69","status":"手繋ぎ","system":"CoC6","scenario":"無辜なきかいぶつたちのカオス","players":"4PL","duration":"","people":"もふぴてマンガン光雷さんKP","timing":"","pc":"","memo":"→かいまほ継続！作者さん本人シナリオ","createdAt":1760000000068,"updatedAt":1760000000068},{"id":"csv_70","status":"手繋ぎ","system":"CoC6","scenario":"十二星座館殺人事件","players":"複数","duration":"","people":"ゾスクメンバー","timing":"","pc":"","memo":"","createdAt":1760000000069,"updatedAt":1760000000069},{"id":"csv_71","status":"手繋ぎ","system":"CoC6","scenario":"イコールミィ","players":"","duration":"","people":"風浦さんくじらコウコウヤ","timing":"","pc":"","memo":"極彩色継続","createdAt":1760000000070,"updatedAt":1760000000070},{"id":"csv_72","status":"手繋ぎ","system":"CoC6","scenario":"ToXic Kiss","players":"タイマン","duration":"","people":"コウコウヤ","timing":"","pc":"","memo":"ドロディス","createdAt":1760000000071,"updatedAt":1760000000071},{"id":"csv_73","status":"手繋ぎ","system":"CoC6","scenario":"東京ゴーストマティカ","players":"4PL","duration":"","people":"くじらぴてゆらさん","timing":"","pc":"","memo":"","createdAt":1760000000072,"updatedAt":1760000000072},{"id":"csv_74","status":"手繋ぎ","system":"CoC6","scenario":"口渇ルルパ","players":"2PL","duration":"","people":"マンガン","timing":"","pc":"","memo":"","createdAt":1760000000073,"updatedAt":1760000000073},{"id":"csv_75","status":"手繋ぎ","system":"CoC6","scenario":"アンダーデッドテイカー","players":"2PL","duration":"","people":"マンガン / ぴて（KP）","timing":"","pc":"","memo":"8月以降","createdAt":1760000000074,"updatedAt":1760000000074},{"id":"csv_76","status":"手繋ぎ","system":"CoC6","scenario":"花に嵐であるものか","players":"2PL","duration":"","people":"マンガン / ぴて（KP）","timing":"","pc":"","memo":"","createdAt":1760000000075,"updatedAt":1760000000075},{"id":"csv_77","status":"手繋ぎ","system":"CoC6","scenario":"ステガノグラフィ🔞","players":"2PL","duration":"","people":"らっこさん","timing":"","pc":"","memo":"","createdAt":1760000000076,"updatedAt":1760000000076},{"id":"csv_78","status":"手繋ぎ","system":"CoC6","scenario":"闇夜の烏は雌雄もつかぬ","players":"タイマン","duration":"","people":"鮭さん","timing":"","pc":"","memo":"鮭さんKP（準備ができたら）","createdAt":1760000000077,"updatedAt":1760000000077},{"id":"csv_79","status":"手繋ぎ","system":"CoC6","scenario":"海も枯れるまで","players":"2PL","duration":"","people":"もふ","timing":"","pc":"","memo":"","createdAt":1760000000078,"updatedAt":1760000000078},{"id":"csv_80","status":"手繋ぎ","system":"CoC6","scenario":"純潔と鉄血","players":"2PL","duration":"","people":"もふ","timing":"","pc":"","memo":"","createdAt":1760000000079,"updatedAt":1760000000079},{"id":"csv_105","status":"未分類","system":"","scenario":"海も枯れるまで","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000104,"updatedAt":1760000000104},{"id":"csv_106","status":"未分類","system":"","scenario":"月がきれいだとかより","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000105,"updatedAt":1760000000105},{"id":"csv_107","status":"未分類","system":"","scenario":"ひつじさんにおやすみなさい","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000106,"updatedAt":1760000000106},{"id":"csv_108","status":"未分類","system":"","scenario":"晩餐花","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000107,"updatedAt":1760000000107},{"id":"csv_109","status":"未分類","system":"","scenario":"夜逃げ","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000108,"updatedAt":1760000000108},{"id":"csv_110","status":"未分類","system":"","scenario":"夢心地ナイトタウン","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000109,"updatedAt":1760000000109},{"id":"csv_111","status":"未分類","system":"","scenario":"愛は胃を通る","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000110,"updatedAt":1760000000110},{"id":"csv_112","status":"未分類","system":"","scenario":"保健室に住むしかない","players":"","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000111,"updatedAt":1760000000111},{"id":"csv_113","status":"未分類","system":"","scenario":"パラクラ","players":"複数","duration":"","people":"こうーや、らっこさんKP","timing":"","pc":"","memo":"","createdAt":1760000000112,"updatedAt":1760000000112},{"id":"csv_114","status":"未分類","system":"","scenario":"バイサマ","players":"複数","duration":"","people":"こうーや","timing":"","pc":"","memo":"","createdAt":1760000000113,"updatedAt":1760000000113},{"id":"csv_115","status":"行きたい","system":"エモクロアTRPG","scenario":"REDRIP","players":"2PL","duration":"","people":"こうーや","timing":"","pc":"","memo":"","createdAt":1760000000114,"updatedAt":1760000000114},{"id":"csv_116","status":"行きたい","system":"エモクロアTRPG","scenario":"極夜","players":"4PL","duration":"","people":"","timing":"","pc":"","memo":"","createdAt":1760000000115,"updatedAt":1760000000115},{"id":"csv_117","status":"手繋ぎ","system":"CoC6","scenario":"烟羅と羅刹","players":"2PL","duration":"","people":"こうーや","timing":"","pc":"","memo":"","createdAt":1760000000116,"updatedAt":1760000000116},{"id":"csv_118","status":"手繋ぎ","system":"CoC6","scenario":"Darling, dip in me！","players":"タイマン","duration":"","people":"こうーや","timing":"","pc":"","memo":"あいゆこ自","createdAt":1760000000117,"updatedAt":1760000000117},{"id":"csv_119","status":"手繋ぎ","system":"CoC6","scenario":"Tacca","players":"2PL","duration":"","people":"こうーや","timing":"","pc":"","memo":"主人:こうーや 従者:ぽめ","createdAt":1760000000118,"updatedAt":1760000000118},{"id":"csv_120","status":"手繋ぎ","system":"CoC6","scenario":"Black Blood Drug Luck","players":"タイマン","duration":"","people":"こうーや","timing":"","pc":"","memo":"コイン自（！？","createdAt":1760000000119,"updatedAt":1760000000119},{"id":"csv_121","status":"手繋ぎ","system":"CoC6","scenario":"地獄の沙汰をも飲み込んで","players":"タイマン","duration":"","people":"夏さん","timing":"","pc":"","memo":"","createdAt":1760000000120,"updatedAt":1760000000120},{"id":"csv_122","status":"手繋ぎ","system":"CoC6","scenario":"R∈D -Re:Dawn-","players":"4PL","duration":"","people":"らっこさん","timing":"","pc":"","memo":"","createdAt":1760000000121,"updatedAt":1760000000121},{"id":"csv_123","status":"未分類","system":"","scenario":"その声ごと口に含んで","players":"タイマン","duration":"","people":"ぴて","timing":"","pc":"","memo":"PWP","createdAt":1760000000122,"updatedAt":1760000000122},{"id":"csv_124","status":"手繋ぎ","system":"エモクロアTRPG","scenario":"マーダースパイラル","players":"2PL","duration":"","people":"こうーや","timing":"","pc":"","memo":"ドロディス","createdAt":1760000000123,"updatedAt":1760000000123},{"id":"csv_125","status":"手繋ぎ","system":"CoC6","scenario":"拝啓、贖イ郵便局の皆様へ","players":"4PL","duration":"","people":"こうーや","timing":"","pc":"","memo":"","createdAt":1760000000124,"updatedAt":1760000000124}];
+(function seedCsvPlans(){
+ try{
+  let current=load(LS.plans);
+  if(!current.length)save(LS.plans,CSV_SEED_PLANS);
+ }catch(e){}
+})();
+let pendingPlanRecordId='';
+let pendingReportScenario='';
+
+function markPlanCompleted(id){
+ let a=load(LS.plans),i=a.findIndex(x=>x.id===id);
+ if(i<0)return false;
+ a[i]={...a[i],status:'通過済み',completedAt:Date.now(),updatedAt:Date.now()};
+ save(LS.plans,a);renderPlans();return true
+}
+function matchingActivePlans(scenario){
+ let q=(scenario||'').trim();
+ if(!q)return [];
+ return load(LS.plans).filter(x=>x.status!=='通過済み'&&sameScenarioName(x.scenario,q))
+}
+function planStatusLabel(v){return v==='予定'?'行く予定':v==='手繋ぎ'?'手繋ぎ':v==='行きたい'?'行きたいシナリオ':v==='通過済み'?'通過済み':'未分類'}
+function clearPlanForm(){
+ $('#editPlanId').value='';
+ $('#planStatus').value='予定';
+ ['planScenario','planPlayers','planDuration','planPeople','planTiming','planPc','planMemo'].forEach(id=>$('#'+id).value='');$('#planSystem').value=''
+}
+$('#savePlan').onclick=()=>{
+ let scenario=$('#planScenario').value.trim();
+ if(!scenario)return alert('シナリオ名を入力してください');
+ let a=load(LS.plans),id=$('#editPlanId').value||String(Date.now());
+ let old=a.find(x=>x.id===id);
+ let obj={
+   id,status:$('#planStatus').value,system:$('#planSystem').value,scenario,
+   players:$('#planPlayers').value.trim(),duration:$('#planDuration').value.trim(),
+   people:$('#planPeople').value.trim(),timing:$('#planTiming').value.trim(),
+   pc:$('#planPc').value.trim(),memo:$('#planMemo').value.trim(),
+   createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()
+ };
+ let i=a.findIndex(x=>x.id===id);if(i>=0)a[i]=obj;else a.unshift(obj);
+ save(LS.plans,a);clearPlanForm();renderPlans()
+};
+$('#clearPlan').onclick=clearPlanForm;
+function renderPlans(){
+ let q=($('#planSearch')?.value||'').trim().toLowerCase(),f=$('#planFilter')?.value||'all';
+ let a=load(LS.plans).filter(x=>{
+   if(f!=='all'&&x.status!==f)return false;
+   if(!q)return true;
+   return `${x.system||''} ${x.scenario||''} ${x.players||''} ${x.duration||''} ${x.people||''} ${x.timing||''} ${x.pc||''} ${x.memo||''}`.toLowerCase().includes(q)
+ });
+ a.sort((x,y)=>($('#planSort')?.value==='old'?1:-1)*((x.createdAt||0)-(y.createdAt||0)));
+ let box=$('#planList');if(!box)return;
+ box.innerHTML=a.length?a.map(x=>`<div class="item">
+   <div><span class="pill">${esc(planStatusLabel(x.status))}</span> ${x.system?`<span class="pill">${esc(x.system)}</span>`:''} <b>${esc(x.scenario)}</b></div>
+   <div style="margin-top:6px">${x.players?`<span class="pill">${esc(x.players)}</span>`:''}${x.duration?`<span class="pill">時間：${esc(x.duration)}</span>`:''}${x.timing?`<span class="pill">時期：${esc(x.timing)}</span>`:''}</div>
+   ${x.people?`<div class="muted" style="margin-top:6px">一緒に行く人：${esc(x.people)}</div>`:''}
+   ${x.pc?`<div class="muted">自分のPC：${esc(x.pc)}</div>`:''}
+   ${x.memo?`<div class="muted">メモ：${esc(x.memo)}</div>`:''}
+   <div class="right" style="margin-top:8px"><button class="secondary" onclick="editPlan('${x.id}')">編集</button> ${x.status!=='通過済み'?`<button class="secondary" onclick="completePlan('${x.id}')">通過済みにする</button>`:''} <button class="danger" onclick="deletePlan('${x.id}')">削除</button></div>
+ </div>`).join(''):'<span class="muted">登録されている卓予定はありません。</span>'
+}
+$('#planSearch').oninput=renderPlans;$('#planFilter').onchange=renderPlans;$('#planSort').onchange=renderPlans;
+window.editPlan=id=>{
+ let x=load(LS.plans).find(v=>v.id===id);if(!x)return;
+ $('#editPlanId').value=x.id;$('#planStatus').value=x.status||'予定';$('#planSystem').value=x.system||'';$('#planScenario').value=x.scenario||'';
+ $('#planPlayers').value=x.players||'';$('#planDuration').value=x.duration||'';$('#planPeople').value=x.people||'';
+ $('#planTiming').value=x.timing||'';$('#planPc').value=x.pc||'';$('#planMemo').value=x.memo||'';
+ $('#planForm').scrollIntoView({behavior:'smooth',block:'start'})
+};
+window.deletePlan=id=>{if(confirm('この卓予定を削除しますか？')){save(LS.plans,load(LS.plans).filter(x=>x.id!==id));renderPlans()}};
+window.completePlan=id=>{
+ let x=load(LS.plans).find(v=>v.id===id);if(!x)return;
+ let toRecord=confirm(`「${x.scenario}」を通過済みにします。\n卓記録にも登録しますか？\n\nOK：卓記録にも登録\nキャンセル：通過済みにするだけ`);
+ if(!toRecord){
+   markPlanCompleted(id);
+   alert('卓予定を通過済みにしました');
+   return
+ }
+ pendingPlanRecordId=id;
+ pendingReportScenario='';
+ $$('.tab').forEach(v=>v.classList.remove('active'));$$('.panel').forEach(v=>v.classList.remove('active'));
+ document.querySelector('.tab[data-tab="records"]')?.classList.add('active');$('#records').classList.add('active');
+ $('#editRecordId').value='';$('#recDate').value='';$('#recScenario').value=x.scenario||'';$('#recAlias').value='';
+ $('#recKind').value='new';$('#recContMemo').value='';$('#recEnd').value='';$('#recResult').value='';
+ $('#recKp').value='';$('#recKpc').value='';$('#recKpcHo').value='';$('#recKpcReading').value='';$('#recKpcMemo').value='';
+ $('#recMemo').value=[x.people?`予定メンバー：${x.people}`:'',x.timing?`予定時期：${x.timing}`:'',x.memo||''].filter(Boolean).join(' / ');
+ let rs=x.system||'CoC6';
+ if(['CoC6','CoC7','エモクロアTRPG'].includes(rs)){
+   $('#recSystem').value=rs;$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden')
+ }
+ $('#recCount').value=1;buildRecPc([{ho:'',pc:x.pc||'',pl:'',reading:'',memo:''}]);
+ $('#manualRecordForm').scrollIntoView({behavior:'smooth',block:'start'});
+ setTimeout(()=>$('#recDate').focus(),300)
+};
+
+function plainFancy(s){
+ const sets=[
+  ['𝐀𝐁𝐂𝐃𝐄𝐅𝐆𝐇𝐈𝐉𝐊𝐋𝐌𝐍𝐎𝐏𝐐𝐑𝐒𝐓𝐔𝐕𝐖𝐗𝐘𝐙','ABCDEFGHIJKLMNOPQRSTUVWXYZ'],
+  ['𝐚𝐛𝐜𝐝𝐞𝐟𝐠𝐡𝐢𝐣𝐤𝐥𝐦𝐧𝐨𝐩𝐪𝐫𝐬𝐭𝐮𝐯𝐰𝐱𝐲𝐳','abcdefghijklmnopqrstuvwxyz'],
+  ['𝟎𝟏𝟐𝟑𝟒𝟓𝟔𝟕𝟖𝟗','0123456789'],
+  ['𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭','ABCDEFGHIJKLMNOPQRSTUVWXYZ'],
+  ['𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇','abcdefghijklmnopqrstuvwxyz'],
+  ['𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵','0123456789']
+ ].map(([x,y])=>[Array.from(x),Array.from(y)]);
+ return Array.from(s||'').map(ch=>{for(const [x,y] of sets){let i=x.indexOf(ch);if(i>=0)return y[i]}return ch}).join('')
+}
+function parsePastedReport(raw){
+ let lines=raw.split(/\r?\n/).map(x=>plainFancy(x).trim()).filter(Boolean);
+ let scenario='',system='CoC6',kp='',kpc='',kpcHo='',contMemo='',end='',result='',pcs=[],section='',pendingHo='',repeatPcRows=false;
+
+ const splitPair=body=>{
+   let parts=body.split(/[：:]/);
+   return [(parts.shift()||'').trim(),parts.join('：').trim()]
+ };
+ const splitHo=body=>{
+   // HOとPCが「┊」で区切られる形式だけでなく、
+   // HO1 PC名：PL名 / HO殺人鬼 PC名：PL名 のような空白区切りにも対応
+   let m=body.match(/^(HO[^┊|：:]*)\s*[┊|]\s*(.*)$/i);
+   if(m)return [m[1].replace(/\s+/g,' ').trim(),m[2].trim()];
+   m=body.match(/^(HO(?:\s*[0-9０-９]+|[0-9０-９]+|[^\s：:]+))\s+(.+?[：:].*)$/i);
+   if(m)return [m[1].replace(/\s+/g,' ').trim(),m[2].trim()];
+   return ['',body]
+ };
+ const parseEndLine=line=>{
+   let t=line.replace(/^[*＊・\-−ー\s]+/,'').replace(/[−ー\-]+$/,'').trim();
+   if(!t)return null;
+   // END/エンドの後ろに番号・記号・名称が続く場合はエンド名へ。
+   // 生還/ロスト/死亡/継続など結果語は結果へ分離。
+   let res='';
+   // 「全生還にてシナリオクリア」等
+   let clear=t.match(/^(全生還|両生還|生還|全ロスト|両ロスト|ロスト|死亡|全員生還|全員ロスト)(?:にて|で)?\s*(シナリオクリア)$/);
+   if(clear)return {end:clear[2],result:clear[1]};
+   clear=t.match(/^(シナリオクリア)\s+(全生還|両生還|生還|全ロスト|両ロスト|ロスト|死亡|全員生還|全員ロスト)$/);
+   if(clear)return {end:clear[1],result:clear[2]};
+   let rm=t.match(/(全生還|両生還|生還|全ロスト|両ロスト|ロスト|死亡|全員生還|全員ロスト|継続不可|継続可)$/);
+   res=rm?rm[1]:'';
+   if(res)t=t.slice(0,rm.index).trim().replace(/[　\s:：\-−]+$/,'');
+   // 結果語が取れていて、その前に文字が残っていればエンド名として扱う。
+   // 例：シナリオエンド　両生還 / Aエンド　ロスト
+   if(res&&t)return {end:t,result:res};
+   let looksEnd=/^(?:END|エンド)\b/i.test(t)||/^(?:END|エンド)[0-9０-９A-Za-zα-ωΑ-Ω\-ー_]+/i.test(t)||/エンド$/i.test(t);
+   if(looksEnd)return {end:t,result:res};
+   // 「*全生還」「*ロスト」のような結果だけの行
+   if(!t&&res)return {end:'',result:res};
+   if(/^(全生還|両生還|生還|全ロスト|両ロスト|ロスト|死亡|全員生還|全員ロスト|継続不可|継続可)$/.test(t))
+     return {end:'',result:t};
+   return null
+ };
+
+ let first=lines.find(x=>x.startsWith('【'));
+ if(first){let m=first.match(/^【([^】]+)】\s*(.+)$/);if(m){let rawSys=(m[1]||'').trim().toLowerCase();system=/エモクロア|emoklore/.test(rawSys)?'エモクロアTRPG':/coc\s*7|coc7/.test(rawSys)?'CoC7':'CoC6';scenario=m[2].trim()}}
+
+ for(let line of lines){
+   if(/^[▶▷►]/.test(line))continue;
+   if(line.startsWith('↳')){contMemo=line.replace(/^↳/,'').replace(/継続$/,'').trim();continue}
+
+   // 1行型 KP/KPC（卓報告の慣例）：KPC名：KP名
+   let one=line.match(/^(?:✦\s*)?KP\s*\/\s*KPC\s*[┊|]\s*(.+)$/i);
+   if(one){
+     let [ho,body]=splitHo(one[1]); if(ho)kpcHo=ho;
+     let [a1,a2]=splitPair(body); kpc=a1;kp=a2;section='';continue
+   }
+
+   // 1行型 KPC/KP：KPC名：KP名
+   one=line.match(/^(?:✦\s*)?KPC\s*\/\s*KP\s*[┊|]\s*(.+)$/i);
+   if(one){
+     let [ho,body]=splitHo(one[1]); if(ho)kpcHo=ho;
+     let [a1,a2]=splitPair(body); kpc=a1;kp=a2;section='';continue
+   }
+   // 1行型 PL/PC（卓報告の慣例）：PC名：PL名
+   one=line.match(/^(?:✦\s*)?PL\s*\/\s*PC\s*[┊|]\s*(.+)$/i);
+   if(one){let [ho,body]=splitHo(one[1]),[pc,pl]=splitPair(body);if(pc||pl)pcs.push({ho,pc,pl,reading:'',memo:''});section='';continue}
+   // 1行型 PC/PL
+   one=line.match(/^(?:✦\s*)?PC\s*\/\s*PL\s*[┊|]\s*(.+)$/i);
+   if(one){let [ho,body]=splitHo(one[1]),[pc,pl]=splitPair(body);if(pc||pl)pcs.push({ho,pc,pl,reading:'',memo:''});section='';continue}
+
+   // エモクロア：DL┊DL名
+   let directDl=line.match(/^DL\s*[┊|]\s*(.+)$/i);
+   if(directDl){kp=directDl[1].trim();section='';repeatPcRows=false;continue}
+
+   // PC1 / PC2 ... ┊PC名：PL名
+   let numberedPc=line.match(/^PC\s*([0-9０-９]+)\s*[┊|]\s*(.+)$/i);
+   if(numberedPc){
+     let num=numberedPc[1].replace(/[０-９]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0));
+     let [pc,pl]=splitPair(numberedPc[2]);
+     if(pc||pl)pcs.push({ho:'PC'+num,pc,pl,reading:'',memo:''});
+     repeatPcRows=false;section='';continue
+   }
+
+   // 「PC┊PC名：PL名」＋次行以降「┊PC名：PL名」の連続形式
+   let directPc=line.match(/^PC\s*[┊|]\s*(.+)$/i);
+   if(directPc){
+     let [pc,pl]=splitPair(directPc[1]);
+     if(pc||pl)pcs.push({ho:'',pc,pl,reading:'',memo:''});
+     repeatPcRows=true;section='';continue
+   }
+   let continuedPc=line.match(/^[┊|]\s*(.+)$/);
+   if(repeatPcRows&&continuedPc){
+     let [pc,pl]=splitPair(continuedPc[1]);
+     if(pc||pl)pcs.push({ho:'',pc,pl,reading:'',memo:''});
+     continue
+   }
+
+   // 見出しなしHO行：
+   // HO殺人鬼┊PC：PL / HO1┊PC：PL / HO殺人鬼 PC：PL / HO1 PC：PL
+   if(/^HO/i.test(line)){
+     let [ho,body]=splitHo(line);
+     if(ho){
+       let [pc,pl]=splitPair(body);
+       if(pc||pl)pcs.push({ho,pc,pl,reading:'',memo:''});
+       continue
+     }
+   }
+
+   // 見出し型
+   if(/^✦?(?:KPC\s*\/\s*KP|KP\s*\/\s*KPC)$/i.test(line)){repeatPcRows=false;section='kpc';continue}
+   if(/^✦?KP(?:\s*[┊|].*)?$/i.test(line)){section='kp';let m=line.match(/[┊|]\s*(.+)$/);if(m)kp=m[1].trim();continue}
+   if(/^✦?(?:PC\s*\/\s*PL|PL\s*\/\s*PC)$/i.test(line)){section='pc';continue}
+
+   // END / エンド / 結果行
+   let er=parseEndLine(line);
+   if(er){if(er.end)end=er.end;if(er.result)result=er.result;continue}
+
+   if(section==='kpc'){
+     let [ho,body]=splitHo(line);if(ho)kpcHo=ho;
+     let [a1,a2]=splitPair(body);kpc=a1;kp=a2;section='';continue
+   }
+   if(section==='pc'||section==='plpc'){
+     // PC一覧の直後にエンド行が来てもPCとして誤認しない
+     let sectionEnd=parseEndLine(line);
+     if(sectionEnd){
+       if(sectionEnd.end)end=sectionEnd.end;
+       if(sectionEnd.result)result=sectionEnd.result;
+       section='';pendingHo='';repeatPcRows=false;continue
+     }
+     // HOだけが1行、その次の行にPC：PLが来る形式にも対応
+     if(/^HO[^：:]*$/i.test(line) && !/[：:]/.test(line)){
+       pendingHo=line.replace(/\s+/g,' ').trim();continue
+     }
+     let [ho,body]=splitHo(line),[a1,a2]=splitPair(body);
+     ho=ho||pendingHo;pendingHo='';
+     let pc=section==='plpc'?a2:a1,pl=section==='plpc'?a1:a2;
+     if(pc||pl)pcs.push({ho,pc,pl,reading:'',memo:''});
+     continue
+   }
+ }
+ return{scenario,system,kp,kpc,kpcHo,contMemo,end,result,pcs,kind:(kpc||contMemo)?'cont':'new',
+ duel:!!kpc&&pcs.length===1,kpcLabel:'KPC'}
+}
+$('#parseReportPaste').onclick=()=>{
+ let p=parsePastedReport($('#reportPaste').value);
+ if(!p.scenario&&!p.pcs.length)return $('#pasteStatus').textContent='読み取れる卓報告が見つかりませんでした。';
+ $('#recScenario').value=p.scenario;$('#recSystem').value=p.system||'CoC6';$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden');$('#recKind').value=(p.kpc||p.contMemo)?'cont':'new';$('#recContMemo').value=p.contMemo;$('#recEnd').value=p.end||'';$('#recResult').value=p.result||'';$('#recKp').value=p.kp;$('#recKpc').value=p.kpc||'';$('#recKpcHo').value=p.kpcHo||'';$('#recKpcLabel').value=p.system==='エモクロアTRPG'?'DPC':(p.kpcLabel||'KPC');
+ let shown=Math.min(20,Math.max(1,p.pcs.length||1));$('#recCount').value=p.duel?'duel':shown;buildRecPc(p.pcs.slice(0,shown));
+ $('#pasteStatus').textContent=`読み込みました：${p.scenario||'シナリオ名不明'} / ${p.pcs.length}PC。${p.pcs.length>20?'現在は先頭20PCまで表示しています。':''} 日付・読み方・メモを確認して保存してください。`;
+};
+$('#clearReportPaste').onclick=()=>{$('#reportPaste').value='';$('#pasteStatus').textContent='読み込むと下の「卓を手動登録 / 編集」に内容を入れます。日付・読み方・メモはあとから追加できます。'};
+function renderAll(){renderCfHistory();renderRecords();renderCfPreview();renderContinuationCharacters();renderPlans()}
+renderAll();
+
+const BACKUP_META_KEY='trpg_backup_last_v1';
+function backupKeys(){return Object.keys(localStorage).filter(k=>k.startsWith('trpg_')&&k!==BACKUP_META_KEY)}
+function renderBackupStatus(){let v=localStorage.getItem(BACKUP_META_KEY),el=$('#backupStatus');if(el)el.textContent='最終バックアップ：'+(v||'まだありません')}
+$('#exportBackup').onclick=()=>{
+ try{
+  let data={format:'TRPG_TOOL_BACKUP',version:1,createdAt:new Date().toISOString(),data:{}};
+  backupKeys().forEach(k=>data.data[k]=localStorage.getItem(k));
+  let blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),u=URL.createObjectURL(blob),a=document.createElement('a'),d=new Date(),pad=n=>String(n).padStart(2,'0');
+  a.href=u;a.download=`trpg_backup_${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}_${pad(d.getHours())}${pad(d.getMinutes())}.json`;
+  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),1000);
+  let stamp=`${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  localStorage.setItem(BACKUP_META_KEY,stamp);renderBackupStatus()
+ }catch(e){alert('バックアップの作成に失敗しました：'+e.message)}
+};
+$('#importBackup').onchange=async e=>{
+ let file=e.target.files?.[0];if(!file)return;
+ try{
+  let obj=JSON.parse(await file.text());
+  if(!obj||obj.format!=='TRPG_TOOL_BACKUP'||!obj.data||typeof obj.data!=='object')throw new Error('このツールのバックアップファイルではありません');
+  let keys=Object.keys(obj.data).filter(k=>k.startsWith('trpg_')&&k!==BACKUP_META_KEY);
+  if(!keys.length)throw new Error('復元できるデータがありません');
+  if(!confirm('バックアップから保存データを復元します。現在の同じ種類のデータは上書きされます。よろしいですか？')){e.target.value='';return}
+  keys.forEach(k=>{let v=obj.data[k];v==null?localStorage.removeItem(k):localStorage.setItem(k,String(v))});
+  renderAll();renderBackupStatus();alert('バックアップから復元しました')
+ }catch(err){alert('復元できませんでした：'+err.message)}
+ finally{e.target.value=''}
+};
+renderBackupStatus();
+
+</script></body></html>
