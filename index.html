@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TRPG 卓管理ツール v4.9.1</title>
+<title>TRPG 卓管理ツール v5.0</title>
 <style>
 :root{--bg:#f6f3ee;--card:#fff;--ink:#282522;--sub:#756f68;--line:#ded8d0;--accent:#5f7668;--soft:#edf1ee}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}
@@ -24,7 +24,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 .kindbadge.new{color:#b85c78;background:#ffe8f0;border-color:#f3b7ca}
 .kindbadge.cont{color:#4f83a8;background:#e6f5ff;border-color:#afd8f2}
 
-/* v4.9.1 卓予定 compact */
+/* v5.0 卓予定 compact */
 #plans .card{padding:12px;margin-bottom:10px}
 #plans h2{margin:0 0 8px;font-size:18px}
 #plans label{font-size:12px;margin-bottom:3px}
@@ -35,7 +35,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 #planList button{padding:6px 9px;font-size:12px}
 .plan-inline-editor{margin-top:7px;padding:9px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.55)}
 
-/* v4.9.1 iPhone tab fix */
+/* v5.0 iPhone tab fix */
 .tabs{
   position:relative;
   z-index:50;
@@ -62,7 +62,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 }
 
 
-/* v4.9.1 iPhone compact layout */
+/* v5.0 iPhone compact layout */
 .make-report-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.make-report-btn span{display:block;width:100%;line-height:1.15;text-align:center}
 @media(max-width:650px){
   body{font-size:13px}
@@ -87,7 +87,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #reportOutput{min-height:110px!important}
 }
 
-/* v4.9.1 iPhone usability */
+/* v5.0 iPhone usability */
 @media(max-width:650px){
   .tabs{
     display:grid!important;
@@ -114,10 +114,33 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   .rec-kind-toggle label{flex:1;text-align:center}
   #report #contBox{margin-top:6px}
 }
+
+/* v5.0 record compact layout */
+.record-v50-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
+.record-party-v50{margin-top:7px}
+#records .pcrow{
+ display:grid!important;
+ grid-template-columns:minmax(0,1.25fr) 48px minmax(0,1.25fr)!important;
+ gap:5px!important;align-items:center
+}
+#records .pcrow .ho{grid-column:2!important;grid-row:1!important;font-size:11px!important;padding:5px!important}
+#records .pcrow .pc{grid-column:1!important;grid-row:1!important}
+#records .pcrow .pl{grid-column:3!important;grid-row:1!important}
+#records .pcrow .reading,#records .pcrow .memo{grid-column:1/-1!important}
+#records #recKpcFields .pcrow{grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important}
+#records #recKpcFields .pcrow .pc{grid-column:1!important}
+#records #recKpcFields .pcrow .pl{grid-column:2!important}
+#records #recKpc,#records #recKp{width:100%!important;min-width:0!important}
+@media(max-width:650px){
+ .record-v50-row{gap:5px}
+ #manualRecordForm .grid,#manualRecordForm .grid3{gap:5px}
+ #manualRecordForm input,#manualRecordForm select{min-height:34px;padding:6px 7px}
+ #manualRecordForm label{margin-bottom:2px}
+}
 </style>
 </head>
 <body><div class="wrap">
-<div class="title">TRPG 卓管理ツール <span class="muted">v4.9.1</span></div>
+<div class="title">TRPG 卓管理ツール <span class="muted">v5.0</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="report">卓報告</button>
 <button class="tab" data-tab="cf">クリファン</button>
@@ -134,7 +157,6 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 <div id="contBox" class="hidden">
 <div class="grid">
   <div><label>継続名</label><input id="continueLabel" placeholder="継続名"></div>
-  <div><label>継続メモ</label><input id="reportContMemo" placeholder="継続メモ"></div>
 </div>
 </div>
 <div class="grid"><div><label>人数</label><select id="playerCount"><option value="solo">ソロ</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></div><div><label>HO</label><select id="hoMode"><option value="number">Ho1〜</option><option value="custom">自由入力</option><option value="none">なし</option></select></div></div>
@@ -340,9 +362,9 @@ function renderContinuationCharacters(){
  $$('.contCharCopy').forEach(b=>b.onclick=async()=>{let x=chars[+b.dataset.i],v=b.dataset.copy==='who'?x.who:x.name,label=b.dataset.copy==='who'?'PL名':'PC名';try{await navigator.clipboard.writeText(v);let old=b.textContent;b.textContent='コピーしました';setTimeout(()=>b.textContent=old,900)}catch{prompt(label+'をコピーしてください',v)}})
 }
 $('#continueLabel').addEventListener('input',renderContinuationCharacters);
-$('#reportContMemo').addEventListener('input',renderContinuationCharacters);
+
 $('#contRecordSearch').addEventListener('input',renderContinuationCharacters);
-function reportData(){let cont=document.querySelector('input[name=kind]:checked').value==='cont';return{date:'',system:($('#system').value==='custom'?($('#customSystem').value.trim()||'CoC6'):$('#system').value),scenario:$('#scenario').value.trim(),alias:cont?'':$('#reportAlias').value.trim(),cont:cont?$('#continueLabel').value.trim():'',contMemo:cont?$('#reportContMemo').value.trim():'',kp:$('#kpName').value.trim(),kpc:$('#kpcName').value.trim(),kpcHo:$('#kpcHo').value.trim(),end:$('#endName').value.trim(),result:$('#endResult').value.trim(),kpLess:!$('#kpcName').value.trim()&&!$('#kpName').value.trim(),pcs:$$('.reportpc').map(r=>({ho:r.querySelector('.ho').value.trim(),pc:r.querySelector('.pc').value.trim(),pl:r.querySelector('.pl').value.trim(),reading:'',memo:''}))}}
+function reportData(){let cont=document.querySelector('input[name=kind]:checked').value==='cont';return{date:'',system:($('#system').value==='custom'?($('#customSystem').value.trim()||'CoC6'):$('#system').value),scenario:$('#scenario').value.trim(),alias:cont?'':$('#reportAlias').value.trim(),cont:cont?$('#continueLabel').value.trim():'',kp:$('#kpName').value.trim(),kpc:$('#kpcName').value.trim(),kpcHo:$('#kpcHo').value.trim(),end:$('#endName').value.trim(),result:$('#endResult').value.trim(),kpLess:!$('#kpcName').value.trim()&&!$('#kpName').value.trim(),pcs:$$('.reportpc').map(r=>({ho:r.querySelector('.ho').value.trim(),pc:r.querySelector('.pc').value.trim(),pl:r.querySelector('.pl').value.trim(),reading:'',memo:''}))}}
 function makeReport(){
  let d=reportData(),cont=document.querySelector('input[name=kind]:checked').value==='cont',
      solo=cont&&$('#playerCount').value==='solo',
@@ -378,7 +400,7 @@ $('#makeReport').onclick=makeReport;$('#copyReport').onclick=async()=>{let t=$('
 $('#clearReport').onclick=()=>{
  let keepKind=document.querySelector('input[name=kind]:checked')?.value||'new';
  let keepCount=$('#playerCount').value;
- ['scenario','reportAlias','continueLabel','reportContMemo','kpName','kpcName','kpcHo','endName','endResult','customSystem','contRecordSearch'].forEach(id=>{let el=$('#'+id);if(el)el.value=''});
+ ['scenario','reportAlias','continueLabel','kpName','kpcName','kpcHo','endName','endResult','customSystem','contRecordSearch'].forEach(id=>{let el=$('#'+id);if(el)el.value=''});
  $('#system').selectedIndex=0;$('#customSystemBox').classList.add('hidden');
  $('#hoMode').value='number';
  $$('.reportpc input').forEach(x=>x.value='');
@@ -406,7 +428,7 @@ $('#saveReportRecord').onclick=()=>{
  $('#recScenario').value=d.scenario||'';
  $('#recAlias').value=d.alias||'';
  $('#recKind').value=d.cont?'cont':'new';syncRecKindUI($('#recKind').value);
- $('#recContMemo').value=d.contMemo||d.cont||'';
+ $('#recContMemo').value=d.cont||'';
  $('#recEnd').value=d.end||'';
  $('#recResult').value=d.result||'';
  $('#recKp').value=d.kp||'';
@@ -1017,7 +1039,7 @@ $('#importBackup').onchange=async e=>{
 renderBackupStatus();
 
 </script><script>
-// v4.9.1: iPhone-safe delegated tab switching
+// v5.0: iPhone-safe delegated tab switching
 (function(){
   function activateTab(tab){
     if(!tab) return;
@@ -1036,4 +1058,43 @@ renderBackupStatus();
   }, true);
 })();
 </script>
-</body></html>
+<script>
+function arrangeRecordFormV50(){
+ const form=document.querySelector('#manualRecordForm'); if(!form)return;
+ const byId=id=>document.getElementById(id);
+ const wrap=el=>el?.closest('div');
+ // 各既存フィールドを含むブロックを取得
+ const date=wrap(byId('recDate')), sys=wrap(byId('recSystem'));
+ const sc=wrap(byId('recScenario')), al=wrap(byId('recAlias'));
+ const kind=wrap(byId('recKind')), cnt=wrap(byId('recCount'));
+ const cont=byId('recContNameBox');
+ const kpc=byId('recKpcFields'), pcs=byId('recPcFields');
+ const en=wrap(byId('recEnd')), rs=wrap(byId('recResult')), memo=wrap(byId('recMemo'));
+ const makeRow=(cls='record-v50-row')=>{let d=document.createElement('div');d.className=cls;return d};
+ if(date&&sys){let r=makeRow();date.before(r);r.append(date,sys)}
+ if(sc&&al){let r=makeRow();sc.before(r);r.append(sc,al)}
+ if(kind&&cnt){let r=makeRow();kind.before(r);r.append(kind,cnt)}
+ if(cont) cont.classList.add('record-cont-v50');
+ if(kpc) kpc.classList.add('record-party-v50');
+ if(pcs) pcs.classList.add('record-party-v50');
+ if(en&&rs){let r=makeRow();en.before(r);r.append(en,rs)}
+ if(memo) memo.classList.add('record-memo-v50');
+}
+setTimeout(arrangeRecordFormV50,0);
+</script><script>
+const _editRecordV50=window.editRecord;
+window.editRecord=function(id){
+ const card=document.querySelector(`[data-record-id="${id}"]`) || [...document.querySelectorAll('#recordList .card')].find(c=>c.innerHTML.includes(`editRecord('${id}')`)||c.innerHTML.includes(`editRecord("${id}")`));
+ const form=document.querySelector('#manualRecordForm');
+ if(!form||!_editRecordV50)return _editRecordV50?.(id);
+ if(!form.dataset.homeMarker){
+   const marker=document.createElement('div');marker.id='recordFormHomeV50';form.before(marker);form.dataset.homeMarker='1';
+ }
+ _editRecordV50(id);
+ if(card){
+   card.insertAdjacentElement('afterend',form);
+   form.classList.add('inline-record-edit-v50');
+   form.scrollIntoView({behavior:'smooth',block:'nearest'});
+ }
+};
+</script></body></html>
