@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TRPG 卓管理ツール v5.0</title>
+<title>TRPG 卓管理ツール v5.1.1</title>
 <style>
 :root{--bg:#f6f3ee;--card:#fff;--ink:#282522;--sub:#756f68;--line:#ded8d0;--accent:#5f7668;--soft:#edf1ee}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}
@@ -24,7 +24,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 .kindbadge.new{color:#b85c78;background:#ffe8f0;border-color:#f3b7ca}
 .kindbadge.cont{color:#4f83a8;background:#e6f5ff;border-color:#afd8f2}
 
-/* v5.0 卓予定 compact */
+/* v5.1.1 卓予定 compact */
 #plans .card{padding:12px;margin-bottom:10px}
 #plans h2{margin:0 0 8px;font-size:18px}
 #plans label{font-size:12px;margin-bottom:3px}
@@ -35,7 +35,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 #planList button{padding:6px 9px;font-size:12px}
 .plan-inline-editor{margin-top:7px;padding:9px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.55)}
 
-/* v5.0 iPhone tab fix */
+/* v5.1.1 iPhone tab fix */
 .tabs{
   position:relative;
   z-index:50;
@@ -62,7 +62,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 }
 
 
-/* v5.0 iPhone compact layout */
+/* v5.1.1 iPhone compact layout */
 .make-report-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.make-report-btn span{display:block;width:100%;line-height:1.15;text-align:center}
 @media(max-width:650px){
   body{font-size:13px}
@@ -87,7 +87,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #reportOutput{min-height:110px!important}
 }
 
-/* v5.0 iPhone usability */
+/* v5.1.1 iPhone usability */
 @media(max-width:650px){
   .tabs{
     display:grid!important;
@@ -115,7 +115,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #report #contBox{margin-top:6px}
 }
 
-/* v5.0 record compact layout */
+/* v5.1.1 record compact layout */
 .record-v50-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
 .record-party-v50{margin-top:7px}
 #records .pcrow{
@@ -137,10 +137,50 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
  #manualRecordForm input,#manualRecordForm select{min-height:34px;padding:6px 7px}
  #manualRecordForm label{margin-bottom:2px}
 }
+
+/* v5.1.1 iPhone / record refinements */
+@media(max-width:650px){
+  input,select,textarea{font-size:16px!important;} /* iOS focus zoom prevention */
+}
+#records .pcrow .ho{display:none!important}
+#records .pcrow{
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+  align-items:start!important;
+}
+#records .pcrow .pc{grid-column:1!important;grid-row:auto!important}
+#records .pcrow .pl{grid-column:2!important;grid-row:auto!important}
+#records .pcrow .reading,#records .pcrow .memo{grid-column:1/-1!important}
+#records .record-v50-row{align-items:start!important}
+#records .record-v50-row>div{margin-top:0!important}
+#records #recEnd,#records #recResult{width:100%}
+#records .record-copy-actions{
+  display:flex;flex-wrap:wrap;gap:4px;align-items:center
+}
+#records .record-copy-actions button{
+  font-size:11px!important;padding:5px 7px!important;min-height:28px!important;white-space:nowrap
+}
+#plans .plan-entry-v51{
+ display:grid;grid-template-columns:1fr 1fr;gap:6px
+}
+#plans .plan-entry-v51 .full{grid-column:1/-1}
+@media(max-width:650px){
+ #plans .plan-entry-v51{grid-template-columns:1fr 1fr!important}
+ #plans .plan-entry-v51 input,#plans .plan-entry-v51 select{width:100%;min-width:0}
+}
+
+#plans #planForm,#plans .plan-form,#plans .plan-entry-v51{grid-template-columns:1fr 1fr!important}
+#plans #planForm .full,#plans .plan-form .full,#plans .plan-entry-v51 .full{grid-column:1/-1!important}
+
+.inline-record-edit-v511{
+  margin:7px 0 12px!important;
+  padding:10px!important;
+  border:2px solid var(--line)!important;
+  border-radius:12px!important;
+}
 </style>
 </head>
 <body><div class="wrap">
-<div class="title">TRPG 卓管理ツール <span class="muted">v5.0</span></div>
+<div class="title">TRPG 卓管理ツール <span class="muted">v5.1.1</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="report">卓報告</button>
 <button class="tab" data-tab="cf">クリファン</button>
@@ -1039,7 +1079,7 @@ $('#importBackup').onchange=async e=>{
 renderBackupStatus();
 
 </script><script>
-// v5.0: iPhone-safe delegated tab switching
+// v5.1.1: iPhone-safe delegated tab switching
 (function(){
   function activateTab(tab){
     if(!tab) return;
@@ -1097,4 +1137,102 @@ window.editRecord=function(id){
    form.scrollIntoView({behavior:'smooth',block:'nearest'});
  }
 };
+</script><script>
+function refineRecordLayoutV51(){
+ const form=document.querySelector('#manualRecordForm'); if(!form)return;
+ const pcFields=document.getElementById('recPcFields');
+ const end=document.getElementById('recEnd')?.closest('div');
+ const result=document.getElementById('recResult')?.closest('div');
+ const memo=document.getElementById('recMemo')?.closest('div');
+ if(pcFields&&end&&result){
+   let row=document.getElementById('recordEndRowV51');
+   if(!row){row=document.createElement('div');row.id='recordEndRowV51';row.className='record-v50-row';}
+   pcFields.insertAdjacentElement('afterend',row); row.append(end,result);
+ }
+ if(memo) form.append(memo);
+ const sc=document.getElementById('recScenario')?.closest('div');
+ const al=document.getElementById('recAlias')?.closest('div');
+ if(sc&&al){sc.style.marginTop='0';al.style.marginTop='0'}
+}
+setTimeout(refineRecordLayoutV51,20);
+</script><script>
+function refinePlansV51(){
+ const panel=document.getElementById('plans'); if(!panel)return;
+ // 卓予定タブ内の「卓記録」見出し/ブロックは表示しない
+ [...panel.querySelectorAll('h2,h3,.card')].forEach(el=>{
+   const t=(el.textContent||'').trim();
+   if((el.tagName==='H2'||el.tagName==='H3') && t==='卓記録') el.style.display='none';
+ });
+ const form=document.getElementById('planForm')||document.querySelector('#plans form');
+ if(form) form.classList.add('plan-entry-v51');
+}
+setTimeout(refinePlansV51,30);
+</script><script>
+(function(){
+ const scenario=document.getElementById('planScenario'); if(!scenario)return;
+ if(document.getElementById('planUrl'))return;
+ const d=document.createElement('div');d.className='full';
+ d.innerHTML='<label>URL</label><input id="planUrl" type="url" placeholder="シナリオURL">';
+ scenario.closest('div')?.insertAdjacentElement('afterend',d);
+})();
+</script><script>
+document.addEventListener('click',function(e){
+ const b=e.target.closest&&e.target.closest('#savePlan');
+ if(!b)return;
+ const sc=(document.getElementById('planScenario')?.value||'').trim();
+ if(!sc)return;
+ const id=document.getElementById('editPlanId')?.value||'';
+ const norm=v=>(v||'').replace(/[\s　]+/g,'').toLowerCase();
+ const dup=(load(LS.plans)||[]).find(x=>x.id!==id&&norm(x.scenario)===norm(sc));
+ if(dup&&!confirm(`「${sc}」は卓予定にすでに登録されています。\nそれでも登録しますか？`)){
+   e.preventDefault();e.stopImmediatePropagation();
+ }
+},true);
+</script><script>
+(function(){
+  const previousEdit = window.editRecord;
+  window.editRecord = function(id){
+    const form = document.getElementById('manualRecordForm');
+    if(!form || typeof previousEdit !== 'function') return previousEdit && previousEdit(id);
+
+    // Remember the form's normal home position once.
+    if(!document.getElementById('recordFormHomeV511')){
+      const home=document.createElement('div');
+      home.id='recordFormHomeV511';
+      form.parentNode.insertBefore(home,form);
+    }
+
+    // Let the existing code populate all fields first.
+    previousEdit(id);
+
+    // Find the actual record card from its Edit button.
+    const buttons=[...document.querySelectorAll('#recordList button')];
+    const editBtn=buttons.find(b=>{
+      const oc=b.getAttribute('onclick')||'';
+      return oc.includes(`editRecord('${id}')`) || oc.includes(`editRecord("${id}")`);
+    });
+    const card=editBtn?.closest('.record-card,.card,[data-record-id]');
+
+    if(card){
+      card.insertAdjacentElement('afterend',form);
+      form.classList.add('inline-record-edit-v511');
+      // Keep the edited card visible; don't jump to the top of the page.
+      requestAnimationFrame(()=>card.scrollIntoView({behavior:'smooth',block:'start'}));
+    }
+  };
+
+  // After save/cancel, put the form back in its original place.
+  function restoreRecordForm(){
+    const form=document.getElementById('manualRecordForm');
+    const home=document.getElementById('recordFormHomeV511');
+    if(form&&home){
+      home.insertAdjacentElement('afterend',form);
+      form.classList.remove('inline-record-edit-v511');
+    }
+  }
+  document.addEventListener('click',e=>{
+    const t=e.target.closest&&e.target.closest('#saveRecord,#clearRecord');
+    if(t) setTimeout(restoreRecordForm,0);
+  });
+})();
 </script></body></html>
