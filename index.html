@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TRPG 卓管理ツール v5.1.5</title>
+<title>TRPG 卓管理ツール v5.1.6</title>
 <style>
 :root{--bg:#f6f3ee;--card:#fff;--ink:#282522;--sub:#756f68;--line:#ded8d0;--accent:#5f7668;--soft:#edf1ee}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}
@@ -24,7 +24,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 .kindbadge.new{color:#b85c78;background:#ffe8f0;border-color:#f3b7ca}
 .kindbadge.cont{color:#4f83a8;background:#e6f5ff;border-color:#afd8f2}
 
-/* v5.1.5 卓予定 compact */
+/* v5.1.6 卓予定 compact */
 #plans .card{padding:12px;margin-bottom:10px}
 #plans h2{margin:0 0 8px;font-size:18px}
 #plans label{font-size:12px;margin-bottom:3px}
@@ -35,7 +35,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 #planList button{padding:6px 9px;font-size:12px}
 .plan-inline-editor{margin-top:7px;padding:9px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.55)}
 
-/* v5.1.5 iPhone tab fix */
+/* v5.1.6 iPhone tab fix */
 .tabs{
   position:relative;
   z-index:50;
@@ -62,7 +62,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 }
 
 
-/* v5.1.5 iPhone compact layout */
+/* v5.1.6 iPhone compact layout */
 .make-report-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.make-report-btn span{display:block;width:100%;line-height:1.15;text-align:center}
 @media(max-width:650px){
   body{font-size:13px}
@@ -87,7 +87,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #reportOutput{min-height:110px!important}
 }
 
-/* v5.1.5 iPhone usability */
+/* v5.1.6 iPhone usability */
 @media(max-width:650px){
   .tabs{
     display:grid!important;
@@ -115,7 +115,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #report #contBox{margin-top:6px}
 }
 
-/* v5.1.5 record compact layout */
+/* v5.1.6 record compact layout */
 .record-v50-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:6px}
 .record-party-v50{margin-top:7px}
 #records .pcrow{
@@ -138,7 +138,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
  #manualRecordForm label{margin-bottom:2px}
 }
 
-/* v5.1.5 iPhone / record refinements */
+/* v5.1.6 iPhone / record refinements */
 @media(max-width:650px){
   input,select,textarea{font-size:16px!important;} /* iOS focus zoom prevention */
 }
@@ -178,7 +178,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   border-radius:12px!important;
 }
 
-/* v5.1.5 卓記録：KPC/KP・PC/PLを縦型に */
+/* v5.1.6 卓記録：KPC/KP・PC/PLを縦型に */
 #records .pcrow{
   display:grid!important;
   grid-template-columns:52px minmax(0,1fr)!important;
@@ -238,7 +238,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
  background:var(--card)!important;
 }
 
-/* v5.1.5 卓記録：編集・削除ボタン */
+/* v5.1.6 卓記録：編集・削除ボタン */
 #recordList button[onclick*="editRecord"],
 #recordList button[onclick*="deleteRecord"]{
   font-size:13px!important;
@@ -248,7 +248,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 }
 
 
-/* v5.1.5 実際の卓記録 編集・削除ボタン */
+/* v5.1.6 実際の卓記録 編集・削除ボタン */
 #recordList button[onclick*="editRec"],
 #recordList button[onclick*="deleteRec"]{
   font-size:14px!important;
@@ -257,10 +257,49 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   line-height:1.2!important;
 }
 
+
+/* v5.1.6 KPC/KP layout */
+#records #recKpcFields .pcrow{
+  display:grid!important;
+  grid-template-columns:165px minmax(0,1fr)!important;
+  gap:8px 12px!important;
+  align-items:start!important;
+}
+#records #recKpcFields .pcrow .ho{display:none!important}
+#records #recKpcFields .pcrow .pc{
+  grid-column:2!important; grid-row:1!important; width:100%!important;
+}
+#records #recKpcFields .pcrow .pl{
+  grid-column:2!important; grid-row:2!important; width:100%!important;
+}
+#records #recKpcFields .pcrow .reading{
+  grid-column:1/-1!important; grid-row:3!important; width:100%!important;
+}
+#records #recKpcFields .pcrow .memo{
+  grid-column:1/-1!important; grid-row:4!important; width:100%!important;
+}
+#records #recKpcFields .pcrow::before{
+  content:"KPC"!important;
+  grid-column:1!important; grid-row:1!important;
+  display:flex!important; align-items:center!important;
+  min-height:48px!important;
+  padding:0 14px!important;
+  border:1px solid var(--line)!important;
+  border-radius:12px!important;
+  font-size:16px!important; font-weight:400!important;
+  text-align:left!important;
+  box-sizing:border-box!important;
+}
+@media(max-width:650px){
+ #records #recKpcFields .pcrow{
+   grid-template-columns:165px minmax(0,1fr)!important;
+ }
+}
+
 </style>
 </head>
 <body><div class="wrap">
-<div class="title">TRPG 卓管理ツール <span class="muted">v5.1.5</span></div>
+<div class="title">TRPG 卓管理ツール <span class="muted">v5.1.6</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="report">卓報告</button>
 <button class="tab" data-tab="cf">クリファン</button>
@@ -1204,7 +1243,7 @@ $('#importBackup').onchange=async e=>{
 renderBackupStatus();
 
 </script><script>
-// v5.1.5: iPhone-safe delegated tab switching
+// v5.1.6: iPhone-safe delegated tab switching
 (function(){
   function activateTab(tab){
     if(!tab) return;
@@ -1542,6 +1581,30 @@ setTimeout(forceRecordOrderV512,30);
      setTimeout(restoreActualRecordForm,0);
    }
  });
+})();
+</script>
+<script>
+(function(){
+ function fixKpcV516(){
+   const ho=document.getElementById('recKpcHo');
+   if(ho){
+     const wrap=ho.closest('.ho')||ho.parentElement;
+     if(wrap)wrap.style.display='none';
+   }
+ }
+ const oldEditRecV516=window.editRec;
+ window.editRec=function(id){
+   oldEditRecV516(id);
+   fixKpcV516();
+   const form=document.getElementById('manualRecordForm');
+   if(form){
+     requestAnimationFrame(()=>{
+       const y=form.getBoundingClientRect().top + window.scrollY - 8;
+       window.scrollTo({top:y,behavior:'smooth'});
+     });
+   }
+ };
+ setTimeout(fixKpcV516,20);
 })();
 </script>
 </body></html>
