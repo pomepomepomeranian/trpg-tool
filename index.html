@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>TRPG 卓管理ツール v4.8</title>
+<title>TRPG 卓管理ツール v4.9.1</title>
 <style>
 :root{--bg:#f6f3ee;--card:#fff;--ink:#282522;--sub:#756f68;--line:#ded8d0;--accent:#5f7668;--soft:#edf1ee}
 *{box-sizing:border-box} body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;background:var(--bg);color:var(--ink)}
@@ -24,7 +24,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 .kindbadge.new{color:#b85c78;background:#ffe8f0;border-color:#f3b7ca}
 .kindbadge.cont{color:#4f83a8;background:#e6f5ff;border-color:#afd8f2}
 
-/* v4.8 卓予定 compact */
+/* v4.9.1 卓予定 compact */
 #plans .card{padding:12px;margin-bottom:10px}
 #plans h2{margin:0 0 8px;font-size:18px}
 #plans label{font-size:12px;margin-bottom:3px}
@@ -35,7 +35,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 #planList button{padding:6px 9px;font-size:12px}
 .plan-inline-editor{margin-top:7px;padding:9px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.55)}
 
-/* v4.8 iPhone tab fix */
+/* v4.9.1 iPhone tab fix */
 .tabs{
   position:relative;
   z-index:50;
@@ -62,8 +62,8 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 }
 
 
-/* v4.8 iPhone compact layout */
-.make-report-btn span{display:block;line-height:1.15}
+/* v4.9.1 iPhone compact layout */
+.make-report-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}.make-report-btn span{display:block;width:100%;line-height:1.15;text-align:center}
 @media(max-width:650px){
   body{font-size:13px}
   .wrap{padding:6px 8px 24px}
@@ -86,10 +86,38 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   #makeReport{min-width:88px}
   #reportOutput{min-height:110px!important}
 }
+
+/* v4.9.1 iPhone usability */
+@media(max-width:650px){
+  .tabs{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    width:100%;
+    overflow:visible!important;
+    gap:5px!important;
+  }
+  .tab{
+    width:100%;
+    min-width:0!important;
+    padding:8px 2px!important;
+    text-align:center;
+    font-size:11.5px!important;
+    white-space:nowrap;
+  }
+  #records #recKpcFields .pcrow{
+    display:grid;
+    grid-template-columns:54px minmax(0,1fr) minmax(0,1fr)!important;
+    gap:5px;
+  }
+  #records #recKpc,#records #recKp{width:100%;min-width:0}
+  .rec-kind-toggle{margin:0;display:flex;gap:5px}
+  .rec-kind-toggle label{flex:1;text-align:center}
+  #report #contBox{margin-top:6px}
+}
 </style>
 </head>
 <body><div class="wrap">
-<div class="title">TRPG 卓管理ツール <span class="muted">v4.8</span></div>
+<div class="title">TRPG 卓管理ツール <span class="muted">v4.9.1</span></div>
 <div class="tabs">
 <button class="tab active" data-tab="report">卓報告</button>
 <button class="tab" data-tab="cf">クリファン</button>
@@ -109,12 +137,12 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
   <div><label>継続メモ</label><input id="reportContMemo" placeholder="継続メモ"></div>
 </div>
 </div>
-<div class="grid"><div><label>人数</label><select id="playerCount"></select></div><div><label>HO</label><select id="hoMode"><option value="number">Ho1〜</option><option value="custom">自由入力</option><option value="none">なし</option></select></div></div>
+<div class="grid"><div><label>人数</label><select id="playerCount"><option value="solo">ソロ</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></div><div><label>HO</label><select id="hoMode"><option value="number">Ho1〜</option><option value="custom">自由入力</option><option value="none">なし</option></select></div></div>
 <h3>KPC / KP</h3>
 <div class="pcrow"><input id="kpcHo" placeholder="HO"><input id="kpcName" placeholder="KPC名"><input id="kpName" placeholder="KP名"></div>
 <h3>PC / PL</h3><div id="pcFields"></div>
 <div class="grid" style="margin-top:10px"><div><label>エンド名</label><input id="endName"></div><div><label>結果</label><input id="endResult"></div></div>
-<div class="row" style="margin-top:12px"><button id="makeReport" class="make-report-btn"><span>投稿文を、</span><span>作る</span></button><button class="secondary" id="saveReportRecord">卓記録にも登録</button><button class="secondary" id="clearReport">クリア</button></div>
+<div class="row" style="margin-top:12px"><button id="makeReport" class="make-report-btn"><span>投稿文を</span><span>作る</span></button><button class="secondary" id="saveReportRecord">卓記録にも登録</button><button class="secondary" id="clearReport">クリア</button></div>
 </div>
 <div class="card" id="contCharacterCard">
 <h2>同じシナリオの過去キャラクター</h2>
@@ -156,11 +184,11 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 <input type="hidden" id="editRecordId">
 <div class="grid3"><div><label>日にち</label><input id="recDate"></div><div><label>システム</label><select id="recSystem"><option value="CoC6">CoC6</option><option value="CoC7">CoC7</option><option value="エモクロアTRPG">エモクロアTRPG</option><option value="custom">編集（自由入力）</option></select><input id="recSystemCustom" class="hidden" placeholder="システム名" style="margin-top:6px"></div><div><label>シナリオ名</label><input id="recScenario"></div></div>
 <div style="margin-top:8px"><label>シナリオ略称</label><input id="recAlias" placeholder="新規卓のみ・任意"></div>
-<div class="grid3" style="margin-top:8px"><div><label>卓区分</label><select id="recKind"><option value="new">新規</option><option value="cont">継続</option></select></div><div><label>継続メモ</label><input id="recContMemo"></div><div><label>エンド名 / 結果</label><div class="grid"><input id="recEnd" placeholder="エンド名"><input id="recResult" placeholder="結果"></div></div></div>
+<div class="grid3" style="margin-top:8px"><div><label>卓区分</label><div class="radio rec-kind-toggle"><label><input type="radio" name="recKindRadio" value="new" checked> 新規</label><label><input type="radio" name="recKindRadio" value="cont"> 継続</label></div><input type="hidden" id="recKind" value="new"></div><div id="recContNameBox" class="hidden"><label>継続名</label><input id="recContMemo" placeholder="継続名"></div><div><label>エンド名 / 結果</label><div class="grid"><input id="recEnd" placeholder="エンド名"><input id="recResult" placeholder="結果"></div></div></div>
 <div id="recContCharacterCard" class="card" style="padding:10px;margin-top:8px">
-  <b>継続メモから過去キャラクター</b>
-  <div class="muted">継続メモに文字を入力すると、卓記録のシナリオ名・略称・継続メモから探します。</div>
-  <div id="recContCharacterMatches" style="margin-top:8px"><span class="muted">継続メモを入力すると表示されます。</span></div>
+  <b>継続名から過去キャラクター</b>
+  <div class="muted">継続名を入力すると、卓記録のシナリオ名・略称・継続名から探します。</div>
+  <div id="recContCharacterMatches" style="margin-top:8px"><span class="muted">継続名を入力すると表示されます。</span></div>
 </div>
 <div id="recKpcFields" style="margin-top:8px">
 <h3>KPC / KP</h3>
@@ -170,7 +198,7 @@ button{border:0;border-radius:10px;padding:10px 13px;background:var(--accent);co
 <div class="grid" style="margin-top:8px"><div><label>KPCの読み方</label><input id="recKpcReading" placeholder="KPCの読み方"></div><div><label>KPCメモ</label><input id="recKpcMemo" placeholder="KPCメモ"></div></div>
 </div></div>
 <div style="margin-top:8px"><label>メモ</label><input id="recMemo"></div>
-<div style="margin-top:8px"><label>人数</label><select id="recCount"></select></div><div id="recPcFields"></div>
+<div style="margin-top:8px"><label>人数</label><select id="recCount"><option value="duel">タイマン</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option></select></div><div id="recPcFields"></div>
 <div class="row" style="margin-top:10px"><button id="saveRecord">保存</button><button class="secondary" id="cancelEdit">入力をクリア</button></div>
 </div>
 </section><div class="card"><h2>卓記録</h2>
@@ -269,8 +297,6 @@ function dateNum(s){
 }
 function fullScenario(base,cont){return cont?.trim()?`${base}(${cont.trim().replace(/継続$/,'')}継続)`:base}
 $$('.tab').forEach(b=>b.onclick=()=>{$$('.tab').forEach(x=>x.classList.remove('active'));$$('.panel').forEach(x=>x.classList.remove('active'));b.classList.add('active');$('#'+b.dataset.tab).classList.add('active');renderAll()});
-$('#playerCount').innerHTML='<option value="solo">ソロ</option>'+Array.from({length:20},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
-$('#recCount').add(new Option('タイマン','duel')); for(let i=1;i<=20;i++) $('#recCount').add(new Option(i,i));
 $('#playerCount').value='4';$('#recCount').value='4';
 $('#system').onchange=()=>$('#customSystemBox').classList.toggle('hidden',$('#system').value!=='custom');
 function syncKindUI(){let cont=document.querySelector('input[name=kind]:checked').value==='cont';$('#contBox').classList.toggle('hidden',!cont);$('#reportAliasBox').classList.toggle('hidden',cont);if(!cont&&$('#playerCount').value==='solo'){$('#playerCount').value='1';buildPc()}}
@@ -314,6 +340,7 @@ function renderContinuationCharacters(){
  $$('.contCharCopy').forEach(b=>b.onclick=async()=>{let x=chars[+b.dataset.i],v=b.dataset.copy==='who'?x.who:x.name,label=b.dataset.copy==='who'?'PL名':'PC名';try{await navigator.clipboard.writeText(v);let old=b.textContent;b.textContent='コピーしました';setTimeout(()=>b.textContent=old,900)}catch{prompt(label+'をコピーしてください',v)}})
 }
 $('#continueLabel').addEventListener('input',renderContinuationCharacters);
+$('#reportContMemo').addEventListener('input',renderContinuationCharacters);
 $('#contRecordSearch').addEventListener('input',renderContinuationCharacters);
 function reportData(){let cont=document.querySelector('input[name=kind]:checked').value==='cont';return{date:'',system:($('#system').value==='custom'?($('#customSystem').value.trim()||'CoC6'):$('#system').value),scenario:$('#scenario').value.trim(),alias:cont?'':$('#reportAlias').value.trim(),cont:cont?$('#continueLabel').value.trim():'',contMemo:cont?$('#reportContMemo').value.trim():'',kp:$('#kpName').value.trim(),kpc:$('#kpcName').value.trim(),kpcHo:$('#kpcHo').value.trim(),end:$('#endName').value.trim(),result:$('#endResult').value.trim(),kpLess:!$('#kpcName').value.trim()&&!$('#kpName').value.trim(),pcs:$$('.reportpc').map(r=>({ho:r.querySelector('.ho').value.trim(),pc:r.querySelector('.pc').value.trim(),pl:r.querySelector('.pl').value.trim(),reading:'',memo:''}))}}
 function makeReport(){
@@ -378,7 +405,7 @@ $('#saveReportRecord').onclick=()=>{
  }
  $('#recScenario').value=d.scenario||'';
  $('#recAlias').value=d.alias||'';
- $('#recKind').value=d.cont?'cont':'new';
+ $('#recKind').value=d.cont?'cont':'new';syncRecKindUI($('#recKind').value);
  $('#recContMemo').value=d.contMemo||d.cont||'';
  $('#recEnd').value=d.end||'';
  $('#recResult').value=d.result||'';
@@ -558,6 +585,16 @@ function buildRecPc(vals=[]){
 }
 $('#recCount').onchange=()=>buildRecPc();
 $('#recSystem').onchange=()=>$('#recSystemCustom').classList.toggle('hidden',$('#recSystem').value!=='custom');buildRecPc();
+
+function syncRecKindUI(value){
+ let v=value||document.querySelector('input[name="recKindRadio"]:checked')?.value||'new';
+ $('#recKind').value=v;
+ $$('input[name="recKindRadio"]').forEach(r=>r.checked=r.value===v);
+ $('#recContNameBox').classList.toggle('hidden',v!=='cont');
+}
+$$('input[name="recKindRadio"]').forEach(r=>r.onchange=()=>{syncRecKindUI(r.value);renderRecContinuationCharacters()});
+syncRecKindUI('new');
+
 function recForm(){return{id:$('#editRecordId').value||crypto.randomUUID?.()||Date.now().toString(),date:normDate($('#recDate').value),system:($('#recSystem').value==='custom'?($('#recSystemCustom').value.trim()||'CoC6'):$('#recSystem').value),scenario:$('#recScenario').value.trim(),alias:$('#recKind').value==='new'?$('#recAlias').value.trim():'',kind:$('#recKind').value,contMemo:$('#recContMemo').value.trim(),end:$('#recEnd').value.trim(),result:$('#recResult').value.trim(),kp:$('#recKp').value.trim(),kpc:$('#recKpc').value.trim(),kpcHo:$('#recKpcHo').value.trim(),kpcReading:$('#recKpcReading').value.trim(),kpcMemo:$('#recKpcMemo').value.trim(),kpcLabel:$('#recKpcLabel').value.trim()||'KPC',duel:$('#recCount').value==='duel',kpLess:!$('#recKpc').value.trim()&&!$('#recKp').value.trim(),memo:$('#recMemo').value.trim(),pcs:$$('.recpc').map(r=>({ho:$('#recCount').value==='duel'?'':r.querySelector('.ho').value.trim(),label:$('#recCount').value==='duel'?r.querySelector('.ho').value.trim():'',pc:r.querySelector('.pc').value.trim(),pl:r.querySelector('.pl').value.trim(),reading:r.querySelector('.reading').value.trim(),memo:r.querySelector('.pcmemo').value.trim()}))}}
 $('#saveRecord').onclick=()=>{
  let r=recForm();if(!r.scenario)return alert('シナリオ名を入力してください');
@@ -588,12 +625,12 @@ $('#saveRecord').onclick=()=>{
    }
  }
 };
-function clearRec(){pendingPlanRecordId='';pendingReportScenario='';$('#editRecordId').value='';['recDate','recScenario','recAlias','recContMemo','recEnd','recResult','recKp','recKpc','recKpcHo','recKpcReading','recKpcMemo','recKpcLabel','recMemo'].forEach(id=>$('#'+id).value='');$('#recKind').value='new';$('#recSystem').value='CoC6';$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden');$('#recKpcLabel').value='KPC';$('#recCount').value=4;buildRecPc();renderRecContinuationCharacters()} $('#cancelEdit').onclick=clearRec;
+function clearRec(){pendingPlanRecordId='';pendingReportScenario='';$('#editRecordId').value='';['recDate','recScenario','recAlias','recContMemo','recEnd','recResult','recKp','recKpc','recKpcHo','recKpcReading','recKpcMemo','recKpcLabel','recMemo'].forEach(id=>$('#'+id).value='');$('#recKind').value='new';syncRecKindUI('new');$('#recSystem').value='CoC6';$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden');$('#recKpcLabel').value='KPC';$('#recCount').value=4;buildRecPc();renderRecContinuationCharacters()} $('#cancelEdit').onclick=clearRec;
 
 function renderRecContinuationCharacters(){
  let box=$('#recContCharacterMatches'); if(!box)return;
  let q=($('#recContMemo').value||'').trim().replace(/継続$/,'');
- if(!q){box.innerHTML='<span class="muted">継続メモを入力すると表示されます。</span>';return}
+ if(!q){box.innerHTML='<span class="muted">継続名を入力すると表示されます。</span>';return}
  let rows=load(LS.records).filter(r=>
    sameScenarioName(r.scenario,q)||
    sameScenarioName(r.alias,q)||
@@ -653,7 +690,7 @@ ${(r.pcs||[]).filter(x=>x.pc||x.pl).map(x=>`<span class="pill">${r.duel?esc(x.la
 }
 $('#recordSearch').oninput=renderRecords;$('#recordFilter').onchange=renderRecords;
 $('#recordFrom').oninput=renderRecords;$('#recordTo').oninput=renderRecords;$('#recordSort').onchange=renderRecords;
-window.editRec=id=>{let r=load(LS.records).find(x=>x.id===id);if(!r)return;$('#editRecordId').value=r.id;$('#recDate').value=r.date||'';let rs=r.system||'CoC6';if(['CoC6','CoC7','エモクロアTRPG'].includes(rs)){$('#recSystem').value=rs;$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden')}else{$('#recSystem').value='custom';$('#recSystemCustom').value=rs;$('#recSystemCustom').classList.remove('hidden')}$('#recScenario').value=r.scenario||'';$('#recAlias').value=r.alias||'';$('#recKind').value=r.kind||(r.kpc||r.contMemo?'cont':'new');$('#recContMemo').value=r.contMemo||'';$('#recEnd').value=r.end||'';$('#recResult').value=r.result||'';$('#recKp').value=r.kp||'';$('#recKpc').value=r.kpc||'';$('#recKpcHo').value=r.kpcHo||'';$('#recKpcReading').value=r.kpcReading||'';$('#recKpcMemo').value=r.kpcMemo||'';$('#recKpcLabel').value=r.kpcLabel||'KPC';$('#recMemo').value=r.memo||'';$('#recCount').value=r.duel?'duel':Math.max(1,r.pcs?.length||1);buildRecPc(r.pcs||[]);renderRecContinuationCharacters();$('#manualRecordForm').scrollIntoView({behavior:'smooth',block:'start'})};
+window.editRec=id=>{let r=load(LS.records).find(x=>x.id===id);if(!r)return;$('#editRecordId').value=r.id;$('#recDate').value=r.date||'';let rs=r.system||'CoC6';if(['CoC6','CoC7','エモクロアTRPG'].includes(rs)){$('#recSystem').value=rs;$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden')}else{$('#recSystem').value='custom';$('#recSystemCustom').value=rs;$('#recSystemCustom').classList.remove('hidden')}$('#recScenario').value=r.scenario||'';$('#recAlias').value=r.alias||'';$('#recKind').value=r.kind||(r.kpc||r.contMemo?'cont':'new');syncRecKindUI($('#recKind').value);$('#recContMemo').value=r.contMemo||'';$('#recEnd').value=r.end||'';$('#recResult').value=r.result||'';$('#recKp').value=r.kp||'';$('#recKpc').value=r.kpc||'';$('#recKpcHo').value=r.kpcHo||'';$('#recKpcReading').value=r.kpcReading||'';$('#recKpcMemo').value=r.kpcMemo||'';$('#recKpcLabel').value=r.kpcLabel||'KPC';$('#recMemo').value=r.memo||'';$('#recCount').value=r.duel?'duel':Math.max(1,r.pcs?.length||1);buildRecPc(r.pcs||[]);renderRecContinuationCharacters();$('#manualRecordForm').scrollIntoView({behavior:'smooth',block:'start'})};
 window.deleteRec=id=>{if(confirm('削除しますか？')){save(LS.records,load(LS.records).filter(x=>x.id!==id));renderRecords()}};
 
 
@@ -693,7 +730,7 @@ $('#savePlan').onclick=()=>{
    id,status:$('#planStatus').value,system:$('#planSystem').value,scenario,
    players:($('#planPlayers').value==='自由入力'?$('#planPlayersCustom').value.trim():$('#planPlayers').value),duration:$('#planDuration').value.trim(),
    kpPeople:$('#planKpPeople').value.trim(),plPeople:$('#planPlPeople').value.trim(),people:[$('#planKpPeople').value.trim(),$('#planPlPeople').value.trim()].filter(Boolean).join(' / '),timing:$('#planTiming').value.trim(),
-   pc:$('#planPc').value.trim(),memo:$('#planMemo').value.trim(),
+   memo:$('#planMemo').value.trim(),
    createdAt:old?.createdAt||Date.now(),updatedAt:Date.now()
  };
  let i=a.findIndex(x=>x.id===id);if(i>=0)a[i]=obj;else a.unshift(obj);
@@ -732,7 +769,7 @@ window.editPlan=id=>{
  <div><label>PL人数</label><select class="pePlayers"><option value="">未選択</option><option value="タイマン">タイマン</option><option value="1PL">1</option><option value="2PL">2</option><option value="3PL">3</option><option value="4PL">4</option><option value="5PL">5</option><option value="6PL">6</option><option value="7PL">7</option><option value="8PL">8</option><option value="9PL">9</option><option value="10PL">10</option><option value="自由入力">自由入力</option></select><input class="pePlayersCustom hidden" placeholder="人数を自由入力" style="margin-top:5px"></div>
  <div><label>時間</label><input class="peDuration" value="${esc(x.duration||'')}"></div>
  <div><label>同卓者：KP</label><input class="peKp" value="${esc(x.kpPeople||'')}"></div>
- <div><label>同卓者：PL</label><input class="pePl" value="${esc(x.plPeople||(!x.kpPeople?x.people||'':'')}"></div>
+ <div><label>同卓者：PL</label><input class="pePl" value="${esc(x.plPeople||(!x.kpPeople?(x.people||''):'') )}"></div>
  <div><label>いつ頃</label><input class="peTiming" value="${esc(x.timing||'')}"></div>
  
  <div><label>メモ</label><input class="peMemo" value="${esc(x.memo||'')}"></div></div>
@@ -756,7 +793,7 @@ window.planRecordFlow=id=>{
  $$('.tab').forEach(v=>v.classList.remove('active'));$$('.panel').forEach(v=>v.classList.remove('active'));
  document.querySelector('.tab[data-tab="records"]')?.classList.add('active');$('#records').classList.add('active');
  $('#editRecordId').value='';$('#recDate').value='';$('#recScenario').value=x.scenario||'';$('#recAlias').value='';
- $('#recKind').value='new';$('#recContMemo').value='';$('#recEnd').value='';$('#recResult').value='';
+ $('#recKind').value='new';syncRecKindUI('new');$('#recContMemo').value='';$('#recEnd').value='';$('#recResult').value='';
  $('#recKp').value=x.kpPeople||'';$('#recKpc').value='';$('#recKpcHo').value='';$('#recKpcReading').value='';$('#recKpcMemo').value='';
  $('#recMemo').value=[x.plPeople?`予定PL：${x.plPeople}`:'',x.timing?`予定時期：${x.timing}`:'',x.memo||''].filter(Boolean).join(' / ');
  let rs=x.system||'CoC6';
@@ -942,7 +979,7 @@ function parsePastedReport(raw){
 $('#parseReportPaste').onclick=()=>{
  let p=parsePastedReport($('#reportPaste').value);
  if(!p.scenario&&!p.pcs.length)return $('#pasteStatus').textContent='読み取れる卓報告が見つかりませんでした。';
- $('#recScenario').value=p.scenario;$('#recSystem').value=p.system||'CoC6';$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden');$('#recKind').value=(p.kpc||p.contMemo)?'cont':'new';$('#recContMemo').value=p.contMemo;$('#recEnd').value=p.end||'';$('#recResult').value=p.result||'';$('#recKp').value=p.kp;$('#recKpc').value=p.kpc||'';$('#recKpcHo').value=p.kpcHo||'';$('#recKpcLabel').value=p.system==='エモクロアTRPG'?'DPC':(p.kpcLabel||'KPC');
+ $('#recScenario').value=p.scenario;$('#recSystem').value=p.system||'CoC6';$('#recSystemCustom').value='';$('#recSystemCustom').classList.add('hidden');$('#recKind').value=(p.kpc||p.contMemo)?'cont':'new';syncRecKindUI($('#recKind').value);$('#recContMemo').value=p.contMemo;$('#recEnd').value=p.end||'';$('#recResult').value=p.result||'';$('#recKp').value=p.kp;$('#recKpc').value=p.kpc||'';$('#recKpcHo').value=p.kpcHo||'';$('#recKpcLabel').value=p.system==='エモクロアTRPG'?'DPC':(p.kpcLabel||'KPC');
  let shown=Math.min(20,Math.max(1,p.pcs.length||1));$('#recCount').value=p.duel?'duel':shown;buildRecPc(p.pcs.slice(0,shown));
  $('#pasteStatus').textContent=`読み込みました：${p.scenario||'シナリオ名不明'} / ${p.pcs.length}PC。${p.pcs.length>20?'現在は先頭20PCまで表示しています。':''} 日付・読み方・メモを確認して保存してください。`;
 };
@@ -980,7 +1017,7 @@ $('#importBackup').onchange=async e=>{
 renderBackupStatus();
 
 </script><script>
-// v4.8: iPhone-safe delegated tab switching
+// v4.9.1: iPhone-safe delegated tab switching
 (function(){
   function activateTab(tab){
     if(!tab) return;
